@@ -1,0 +1,39 @@
+.approval-page {
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure the container takes up the full viewport height */
+    background-color: #465677;
+}
+
+.approvalCard {
+    background-color: white;
+    color: black;
+    padding: 1px;
+    border-radius: 10px;
+    margin: auto;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.approval-card h6 {
+    margin-bottom: 15px;
+}
+
+.approval-card .MuiButton-root {
+    width: 35%;
+}
+
+.admin-logo{
+    width: 150px;
+    height: 100px;
+}
+
+.admin-header{
+    display: flex;
+}
+
+.songCover {
+    width: 120px;
+    height: 130px;
+    border-radius: 5px;
+    margin-right: 20px;
+}

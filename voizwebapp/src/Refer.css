@@ -1,0 +1,105 @@
+/* Blur effect for dialogs */
+/* .dialog-open {
+  filter: blur(0px);
+  opacity: 0.7;
+  pointer-events: none;
+  user-select: none;
+  transition: all 0.3s ease-in-out;
+} */
+
+/* Ensure specific elements remain interactive */
+.MuiDrawer-root.dialog-open,
+.drawer.dialog-open,
+.feedback.dialog-open,
+.admin-card.dialog-open,
+.explore-body.dialog-open {
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  user-select: auto !important;
+}
+
+/* Additional specificity to ensure sidebar and other elements remain clear */
+.MuiDrawer-paper.dialog-open {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Make sure this rule has high enough specificity */
+.feedback.dialog-open {
+  filter: blur(4px) !important;
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transition: all 0.3s ease-in-out !important;
+}
+
+.admin-card.dialog-open {
+  filter: blur(4px) !important;
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transition: all 0.3s ease-in-out !important;
+}
+
+.explore-body.dialog-open {
+  filter: blur(4px) !important;
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transition: all 0.3s ease-in-out !important;
+}
+
+/* Add these styles to Explore.css */
+
+/* Blur effect for dialog */
+.explore-body.dialog-open {
+  position: relative;
+}
+
+.explore-body.dialog-open::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Ensure search container stays above blur overlay when not in dialog */
+.search-container {
+  z-index: 1001;
+  position: relative;
+}
+
+/* Ensure dialog appears above the blur overlay */
+.MuiDialog-root {
+  z-index: 1400;
+}
+
+/* Ensure search results don't get affected by blur */
+.search-results {
+  z-index: 1200;
+}
+
+/* Keep sidebar visible and unblurred */
+.sidebar {
+  z-index: 1500;
+  position: relative;
+}
+
+.feedback.dialog-open,
+.feedback.dialog-open
+  *:not(.MuiDialog-paper):not(.MuiDialog-container *):not(.MuiMenu-paper):not(
+    .MuiMenu-paper *
+  ) {
+  filter: blur(4px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}

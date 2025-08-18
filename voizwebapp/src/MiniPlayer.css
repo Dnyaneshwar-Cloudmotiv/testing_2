@@ -1,0 +1,366 @@
+/* MiniPlayer.css */
+.mini-player {
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  height: 70px;
+  padding: 0 64px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  /* background: linear-gradient(92.98deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.2) 100%); */
+  background-color: #151415 !important;
+  box-shadow: -4px 8px 56px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(7.5px);
+  color: white;
+  z-index: 3000;
+}
+
+.album-art {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-left: -40px !important;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 16px;
+  min-width: 200px;
+}
+
+.song-title {
+  font-family: "Poppins" !important;
+  font-weight: 600 !important;
+  /* font-size: 24px !important; */
+  line-height: 28px;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-artist {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+  font-size: 12px !important;
+  line-height: 22px;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  margin-left: -40px;
+  width: 100%;
+  max-width: 800px;
+  gap: 16px;
+}
+
+.time-text {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 300;
+  font-size: 8px !important;
+  color: #ffffff;
+  min-width: 45px;
+  text-align: center;
+}
+
+.progress-slider {
+  width: 100%;
+  color: #c2ccff;
+  width: 650px !important;
+}
+
+.progress-slider .MuiSlider-track {
+  background-color: #2644d9;
+  height: 6px;
+  border-radius: 100px;
+}
+
+.progress-slider .MuiSlider-rail {
+  background-color: rgba(194, 204, 255, 0.3);
+  height: 8px;
+  border-radius: 100px;
+}
+
+.progress-slider .MuiSlider-thumb {
+  width: 16px;
+  height: 16px;
+  background-color: #2644d9;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 16px;
+}
+
+.control-icon {
+  width: 32px !important;
+  height: 50px !important;
+  padding: 4px !important;
+  color: #2644d9 !important;
+}
+
+.control-icon-img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.play-button {
+  width: 44px !important;
+  height: 45px !important;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+}
+
+.play-icon {
+  font-size: 24px;
+  color: #ffffff;
+  width: 19.88px;
+  margin-left: 3px;
+}
+
+.MuiIconButton-root.Mui-disabled {
+  color: rgba(100, 199, 255, 0.3) !important;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 8px;
+}
+
+.volume-icon {
+  padding: 8px;
+}
+
+.volume-slider {
+  margin: 0;
+  
+}
+
+/* Interaction button styles */
+.interaction-button {
+  position: relative;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+}
+
+.interaction-button:active {
+  transform: scale(0.85);
+}
+
+/* Animation container */
+.animation-popup {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Main bubble animation */
+.animation-popup img {
+  position: relative;
+  animation: bubbleFloat 0.8s cubic-bezier(0.24, 0.92, 0.38, 1) forwards;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Particle effects */
+.animation-popup::before,
+.animation-popup::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  animation: particleBurst 0.6s ease-out forwards;
+}
+
+.animation-popup::before {
+  left: -10px;
+  animation-delay: 0.1s;
+}
+
+.animation-popup::after {
+  right: -10px;
+  animation-delay: 0.2s;
+}
+
+/* Main floating bubble animation */
+@keyframes bubbleFloat {
+  0% {
+    transform: scale(0.4) translateY(0);
+    opacity: 0;
+  }
+  20% {
+    transform: scale(1.2) translateY(-10px);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1) translateY(-25px);
+    opacity: 0.8;
+  }
+  80% {
+    transform: scale(0.9) translateY(-35px) rotate(8deg);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(0.6) translateY(-50px) rotate(-8deg);
+    opacity: 0;
+  }
+}
+
+/* Particle burst animation */
+@keyframes particleBurst {
+  0% {
+    transform: scale(0) translate(0, 0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) translate(var(--x, 20px), var(--y, -20px));
+    opacity: 0;
+  }
+}
+
+/* Multiple particles effect */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+.particle:nth-child(1) {
+  --x: 15px;
+  --y: -15px;
+  animation: particleBurst 0.6s ease-out forwards;
+}
+
+.particle:nth-child(2) {
+  --x: -15px;
+  --y: -15px;
+  animation: particleBurst 0.6s ease-out forwards 0.1s;
+}
+
+.particle:nth-child(3) {
+  --x: 0px;
+  --y: -20px;
+  animation: particleBurst 0.6s ease-out forwards 0.2s;
+}
+
+/* Add shimmer effect on hover */
+.interaction-button:hover .control-icon-img {
+  animation: shimmer 1s infinite;
+}
+
+.play-button:hover {
+  background-color: #2644d9 !important;
+}
+
+@keyframes shimmer {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* Active state pulse effect */
+.interaction-button[data-active="true"] .control-icon-img {
+  animation: activePulse 2s infinite;
+}
+
+@keyframes activePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Shuffle and Repeat active states */
+.active-shuffle {
+  color: #1db954 !important;
+}
+
+.active-repeat {
+  color: #1db954 !important;
+}
+
+@keyframes clapAnimation {
+  0% {
+    transform: translate(-50%, 20%); /* Start slightly below the IconButton */
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%); /* Midway up */
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -100%); /* Above the IconButton */
+    opacity: 0;
+  }
+}
+
+.clap-animation {
+  position: absolute;
+  bottom: 100%; /* Start above the hand IconButton */
+  left: 50%; /* Center horizontally relative to the IconButton */
+  transform: translateX(-50%);
+  animation: clapAnimation 1s ease-out;
+}
+
+.love-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.clap-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.clap img {
+  height: 36px !important;
+  width: 36px !important;
+}
+
+.loop img {
+  height: 24px !important;
+  width: 24px !important;
+}
+.favorite img {
+  height: 30px !important;
+  width: 30px !important;
+  opacity: 1 !important;
+}

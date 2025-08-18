@@ -1,0 +1,242 @@
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS Variables */
+:root {
+  --sidebar-width: 240px;
+  --details-width: 260px;
+  --details-width-collapsed: 48px;
+  --player-height: 104px;
+  --primary-bg: #444444;
+  --secondary-bg: #001529;
+  --content-bg: #444444;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* App Layout */
+.app-layout {
+  width: 100vw;
+  height: 100vh;
+  background: var(--primary-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Main Content Wrapper */
+.main-wrapper {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100%;
+  background: var(--secondary-bg);
+  border-right: 1px solid var(--border-color);
+  position: relative;
+  z-index: 1;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  height: 100vh;
+  /* background: var(--content-bg); */
+  background-color: #1E1E1E !important;
+  overflow-y: auto;
+  position: relative;
+  transition: width 0.3s ease;
+  padding-bottom: calc(var(--player-height));
+  z-index: 1;
+  width: calc(100% - var(--details-width));
+}
+
+.main-content.with-collapsed-details {
+  width: calc(100% - var(--details-width-collapsed));
+}
+
+/* Add the blurred ellipse */
+.main-content::before {
+  content: "";
+  position: fixed;
+  width: 800px;
+  height: 800px;
+  background-color: #1E1E1E;
+  /* border-radius: 50%;
+  opacity: 60%; */
+  /* filter: blur(100px); */
+  pointer-events: none;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.main-content > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Details Bar */
+.details-bar {
+  height: calc(100vh - var(--player-height));
+  background: var(--primary-bg);
+  border-left: 1px solid var(--border-color);
+  position: relative;
+  z-index: 2;
+  transition: width 0.3s ease;
+  flex-shrink: 0;
+}
+
+.details-bar.collapsed {
+  width: var(--details-width-collapsed);
+}
+
+/* Player Bar */
+.player-bar {
+  /* position: fixed; */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--player-height);
+  z-index: 9999;
+}
+
+/* Menu styles for mini player */
+.MuiMenu-paper {
+  z-index: 10000 !important;
+}
+
+/* Custom Scrollbar */
+.main-content::-webkit-scrollbar,
+.details-bar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.main-content::-webkit-scrollbar-thumb,
+.details-bar::-webkit-scrollbar-thumb {
+  background: rgba(136, 133, 133, 0.2);
+  border-radius: 3px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover,
+.details-bar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Media Queries */
+@media (max-width: 1400px) {
+  .main-content {
+    width: calc(100% - var(--details-width));
+  }
+
+  .main-content.with-collapsed-details {
+    width: calc(100% - var(--details-width-collapsed));
+  }
+}
+
+@media (max-width: 1200px) {
+  .main-content {
+    width: calc(100% - var(--details-width));
+  }
+
+  .main-content.with-collapsed-details {
+    width: calc(100% - var(--details-width-collapsed));
+  }
+}
+
+@media (max-width: 768px) {
+  .details-bar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: min(var(--details-width), 100%);
+    transform: translateX(0);
+    transition: transform 0.3s ease, width 0.3s ease;
+  }
+
+  .details-bar.collapsed {
+    width: var(--details-width-collapsed);
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .main-content.with-collapsed-details {
+    width: calc(100% - var(--details-width-collapsed));
+  }
+}
+
+/* Main content transition */
+.main-content {
+  flex: 1;
+  height: 100vh;
+  background: var(--content-bg);
+  overflow-y: auto;
+  position: relative;
+  transition: width 0.3s ease;
+  padding-bottom: var(--player-height);
+  z-index: 1;
+}
+
+/* Main wrapper to handle flex layout */
+.main-wrapper {
+  display: flex;
+  height: calc(100vh - var(--player-height));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add these classes to your existing App.css */
+.main-content.with-sidebar {
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+}
+
+.main-content.with-sidebar.with-details {
+  width: calc(100% - var(--sidebar-width) - var(--details-width));
+}
+
+/* Update media queries for sidebar */
+@media (max-width: 1400px) {
+  .main-content.with-sidebar {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+  }
+
+  .main-content.with-sidebar.with-details {
+    width: calc(100% - 200px - var(--details-width));
+  }
+}
+
+@media (max-width: 1200px) {
+  .main-content.with-sidebar {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+  }
+
+  .main-content.with-sidebar.with-details {
+    width: calc(100% - 80px - var(--details-width));
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content.with-sidebar.with-details {
+    width: calc(100% - 80px);
+  }
+
+  .details-bar {
+    width: 100%;
+    max-width: var(--details-width);
+  }
+}

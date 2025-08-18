@@ -1,0 +1,170 @@
+.mainScreen {
+  min-height: 100vh;
+  display: flex;
+}
+
+.profile {
+  flex: 1;
+  /* padding: 5px; */
+  width: 100%;
+  margin: auto;
+  min-height: 100vh;
+}
+
+/* Banner section */
+.profile__banner {
+  position: relative;
+  width: 97.9%;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 1px 1px 31px 31px;
+}
+
+.profile__banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Profile info section */
+.edit__info {
+  position: relative;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile__info {
+  position: relative;
+  margin-bottom: 18px;
+  margin-left: -30px;
+  display: flex;
+  justify-content: center;
+  margin-top: -60px;
+}
+
+.profile__avatar-container {
+  position: relative;
+  /* margin-top: -90px; */
+}
+
+.profile__avatar {
+  width: 120px !important;
+  height: 120px !important;
+}
+
+.profile__edit-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #ada6a6;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  margin-left: 2px !important;
+}
+
+.profile__edit-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.profile__name {
+  text-align: center;
+  color: white;
+}
+
+.profile__settings-content {
+  width: 60%;
+  /* margin: auto; */
+  margin-left: 285px;
+  color: white;
+}
+
+.profile__settings-item {
+  margin: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.profile__settings-item--clickable {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.profile__divider {
+  background-color: #e0e0e0 !important;
+  margin: 8px 0 !important;
+  width: 700px;
+}
+
+.profile__signout {
+  font-weight: bold !important;
+  font-size: 2rem !important;
+  text-transform: none !important;
+  width: 160px;
+  margin-left: 554px !important;
+  text-decoration: none !important;
+}
+
+/* .profile__signout {
+  font-weight: bold !important;
+  font-size: 2rem !important;
+  text-transform: none !important;
+  width: 100%;
+  margin-left: -24px !important;
+} */
+/* Main dialog styling */
+.MuiDialog-root {
+  position: fixed;
+  z-index: 1300;
+}
+
+.MuiDialog-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MuiDialog-paper {
+  width: 500px;
+  max-width: 500px;
+  background-color: rgba(21, 20, 21, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Target only specific middle content sections for blur and prevent sidebar blur */
+.content-section.dialog-open,
+.content-container.dialog-open .playlists-section,
+.content-container.dialog-open .hero-section,
+.formContainer.dialog-open,
+.drawer.dialog-open > div:not(.MuiDrawer-root):not(.sidebar-wrapper) {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+/* Explicitly ensure sidebar never gets blurred */
+.MuiDrawer-root,
+.MuiDrawer-paper,
+.drawer > .MuiDrawer-root,
+.drawer > div:first-child,
+.sidebar,
+.player-controls {
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure dialog content remains clear */
+.MuiDialog-container .MuiDialog-paper {
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}

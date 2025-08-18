@@ -1,0 +1,78 @@
+.song-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  
+  .song-item.active-song {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .song-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .number-play-wrapper {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .playing-indicator {
+    width: 12px;
+    height: 12px;
+    background-color: #2644D9;
+    border-radius: 50%;
+  }
+  
+  .title-cell {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+  
+  .song-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    margin-right: 12px;
+  }
+  
+  .song-name {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .song-name.active {
+    color: #2644D9 !important;
+  }
+  
+  .stage-name {
+    font-size: 14px !important;
+  }
+  
+  .song-duration {
+    color: white;
+    font-size: 14px;
+  }
+  
+  .song-duration.active {
+    color: #2644D9 !important;
+  }
+  
+  .empty-state {
+    color: white;
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .loading-text,
+  .error-text {
+    color: white;
+    text-align: center;
+    padding: 16px;
+  }

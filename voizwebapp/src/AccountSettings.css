@@ -1,0 +1,204 @@
+.account {
+  flex: 1;
+  padding: 5px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* Banner section */
+.account__banner {
+  position: relative;
+  width: 109.6%;
+  height: 251px;
+  margin-left: -70px;
+  margin-top: -4px;
+  overflow: hidden;
+  border-radius: 1px 1px 31px 31px;
+}
+
+.account__banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Profile info section */
+.account__info {
+  position: relative;
+  margin-top: -60px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.account__avatar-container {
+  position: relative;
+  /* margin-top: -90px; */
+  margin-right: 33px !important;
+  margin-bottom: 10px !important;
+}
+
+.account__avatar {
+  width: 120px !important;
+  height: 120px !important;
+}
+
+.account__edit-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  background: #ada6a6;
+}
+
+.account__edit-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.account__name {
+  text-align: center !important;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 33px !important;
+  margin-top: -25px !important;
+  margin-right: 20px !important;
+  font-weight: 400 !important;
+}
+
+/* Settings section */
+.account__settings {
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.account__settings-content {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.account__settings-title {
+  color: #ffffff;
+  margin-bottom: 16px !important;
+}
+
+.account__settings-text {
+  color: #ffffff !important;
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.account__divider {
+  background-color: #e0e0e0 !important;
+  margin-top: 8px !important;
+  margin-bottom: 20px !important;
+}
+
+.account__button {
+  font-size: 20px !important;
+  padding: 12px 0 !important;
+  margin: 8px 0 !important;
+  text-transform: none !important;
+  color: white !important;
+}
+/* Add these styles to your CSS file */
+.MuiDialog-paper {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.MuiDialogTitle-root {
+  color: #f8f5f5;
+  font-weight: 500;
+}
+
+input::placeholder {
+  color: #666;
+  opacity: 1;
+}
+
+/* For Firefox */
+input:-moz-placeholder {
+  color: #666;
+  opacity: 1;
+}
+
+/* For Internet Explorer */
+input:-ms-input-placeholder {
+  color: #666;
+  opacity: 1;
+}
+
+/* For Chrome/Safari */
+input::-webkit-input-placeholder {
+  color: #666;
+  opacity: 1;
+}
+
+/* Remove autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f5f5f5 inset !important;
+}
+
+.eye-icon {
+  color: white !important;
+}
+/* Main dialog styling */
+.MuiDialog-root {
+  position: fixed;
+  z-index: 1300;
+}
+
+.MuiDialog-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MuiDialog-paper {
+  width: 500px;
+  max-width: 500px;
+  background-color: rgba(21, 20, 21, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Target only specific middle content sections for blur and prevent sidebar blur */
+.content-section.dialog-open,
+.content-container.dialog-open .playlists-section,
+.content-container.dialog-open .hero-section,
+.formContainer.dialog-open,
+.drawer.dialog-open > div:not(.MuiDrawer-root):not(.sidebar-wrapper) {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+/* Explicitly ensure sidebar never gets blurred */
+.MuiDrawer-root,
+.MuiDrawer-paper,
+.drawer > .MuiDrawer-root,
+.drawer > div:first-child,
+.sidebar,
+.player-controls {
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.account.dialog-open {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}

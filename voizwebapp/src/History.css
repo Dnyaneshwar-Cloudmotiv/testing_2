@@ -1,0 +1,64 @@
+.admin-logo {
+    width: 150px;
+    height: 100px;
+}
+
+.adminPage {
+    display: flex;
+    background-color: #465473;
+}
+
+
+.adminBody {
+    margin-left: 20px;
+    background-color: #465473;
+}
+
+.songListPanel {
+    background-color: #465473;
+}
+
+.songListGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 100px;
+    row-gap: 30px;
+    padding: 10px;
+    width:200%
+
+}
+
+.song-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.songcover {
+    width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+
+.mini-player {
+    position: fixed;
+    bottom: 0;
+    left: var(--drawer-width); /* Start the mini player after the drawer */
+    right: 0;
+    background-color: #1e1e1e;
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1100; /* Ensure it's above other content */
+    color: white;
+}
+
+
+:root {
+    --drawer-width: 240px; /* Set the drawer width here */
+}

@@ -1,0 +1,13 @@
+.homePage {
+    min-height: 100vh;
+    /* background-color: #465473; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.logo{
+    width:auto;
+    height:auto;
+}

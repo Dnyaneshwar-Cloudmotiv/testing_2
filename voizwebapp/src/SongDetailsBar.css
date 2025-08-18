@@ -1,0 +1,554 @@
+/* Main Container */
+.song-details-bar {
+  --mini-player-height: 70px; /* Match MiniPlayer's height */
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 270px;
+  height: 750px; /* Adjust height based on MiniPlayer */
+  background: #211f20;
+  border-left: 1px solid #211f20;
+  color: white;
+  overflow: hidden;
+  transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+  z-index: 1000; /* Lower than MiniPlayer's z-index (3000) */
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Add this style for when MiniPlayer is not present */
+.song-details-bar.no-player {
+  height: 100vh;
+  
+}
+
+.song-details-bar.collapsed {
+  width: 30px;
+}
+
+/* Integrated TopBar */
+.integrated-topbar {
+  height: 51px;
+  background: #211f20;
+  backdrop-filter: blur(7.5px);
+  -webkit-backdrop-filter: blur(7.5px);
+  border-bottom: 1px solid #211f20;
+  display: flex;
+  align-items: center;
+  margin-left: -10px;
+  padding: 8px;
+  z-index: 1001;
+}
+
+.MuiTypography-body1 {
+  color: rgba(255, 255, 255, 0.916) !important;
+  margin-top: -1px !important;
+  font-size: 12px !important;
+}
+
+.collapse-button {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.integrated-topbar:hover .collapse-button {
+  opacity: 1;
+}
+
+/* Details Content */
+.details-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.details-content::-webkit-scrollbar {
+  width: 1px;
+}
+
+.details-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.details-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Song Card */
+.song-card {
+  background: #211f20;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Song Image */
+.song-image-container {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgb(30, 41, 59);
+}
+
+.song-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Artists Section */
+.artists {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 1px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.artist-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.artist-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.artist-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 6px !important;
+  border: 0px solid rgba(255, 255, 255, 0.2);
+}
+
+.artist-info {
+  flex: 1;
+}
+
+.artist-name {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: white !important;
+}
+
+.artist-role {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Comments Section */
+.comments-section {
+  padding: 1px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.comment-input-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.comment-input {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.comment-input .MuiInputBase-root {
+  color: white !important;
+  padding: 8px !important;
+}
+
+.send-button {
+  position: absolute !important;
+  right: 4px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: rgb(8, 1, 1) !important;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-item {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.comment-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.comment-avatar {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-author {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-bottom: 4px !important;
+}
+
+.comment-text {
+  font-size: 14px !important;
+  color: white !important;
+}
+
+/* Loading States */
+.loading-text,
+.no-comments-text {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 24px 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+
+/* Menu Styles */
+.user-menu .MuiPaper-root {
+  background: rgba(26, 27, 31, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-menu .MuiMenuItem-root {
+  color: white;
+  font-size: 14px;
+  padding: 12px 16px;
+}
+
+.user-menu .MuiMenuItem-root:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Metrics Section */
+.metrics-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+.metric-value {
+  font-size: 14px;
+  color: white;
+}
+
+/* Report Dialog */
+.report-dialog {
+  background: rgba(26, 27, 31, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* Button Styles */
+.share-button,
+.report-button {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px 16px;
+  color: white;
+  text-transform: none;
+  transition: background-color 0.2s ease;
+}
+
+/* Responsive Styles */
+@media (max-width: 1400px) {
+  .song-details-bar {
+    width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .song-details-bar {
+    width: 100%;
+    max-width: 240px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .song-details-bar.active {
+    transform: translateX(0);
+  }
+
+  .song-details-bar.collapsed {
+    transform: translateX(calc(100% - 48px));
+  }
+}
+
+/* Animation for Comments */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.comment-item {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Custom Scrollbar for the entire component */
+.song-details-bar::-webkit-scrollbar {
+  width: 1px;
+}
+
+.song-details-bar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.song-details-bar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.share-button:hover,
+.report-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+}
+
+/* Add these rules at the end of SongDetailsBar.css */
+.details-content {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+}
+
+.details-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.details-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.details-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.details-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.song-card {
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+.comments-section {
+  padding-bottom: 20px;
+}
+
+/* Main dialog styling */
+.MuiDialog-root {
+  position: fixed;
+  z-index: 1300;
+}
+
+.MuiDialog-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MuiDialog-paper {
+  width: 500px;
+  max-width: 500px;
+  background-color: rgba(21, 20, 21, 0.9) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Target only specific middle content sections for blur and prevent sidebar blur */
+.content-section.dialog-open,
+.content-container.dialog-open .playlists-section,
+.content-container.dialog-open .hero-section,
+.formContainer.dialog-open,
+.drawer.dialog-open > div:not(.MuiDrawer-root):not(.sidebar-wrapper) {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+/* Explicitly ensure sidebar never gets blurred */
+.MuiDrawer-root,
+.MuiDrawer-paper,
+.drawer > .MuiDrawer-root,
+.drawer > div:first-child,
+.sidebar,
+.player-controls,
+.for-blur {
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure dialog content remains clear */
+.MuiDialog-container .MuiDialog-paper {
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Target the Profile page for blur effect */
+.profile.dialog-open {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+.for-blur.dialog-open {
+  filter: blur(5px) !important;
+  pointer-events: none !important;
+  opacity: 0.7 !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Add these styles to Explore.css */
+
+/* Blur effect for dialog */
+.explore-body.dialog-open {
+  position: relative;
+}
+
+.explore-body.dialog-open::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Ensure search container stays above blur overlay when not in dialog */
+.search-container {
+  z-index: 1001;
+  position: relative;
+}
+
+/* Ensure dialog appears above the blur overlay */
+.MuiDialog-root {
+  z-index: 1400;
+}
+
+/* Ensure search results don't get affected by blur */
+.search-results {
+  z-index: 1200;
+}
+
+/* Keep sidebar visible and unblurred */
+.sidebar {
+  z-index: 1500;
+  position: relative;
+}
+
+.feedback.dialog-open,
+.feedback.dialog-open
+  *:not(.MuiDialog-paper):not(.MuiDialog-container *):not(.MuiMenu-paper):not(
+    .MuiMenu-paper *
+  ) {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+
+.custom-comments-scrollbar {
+  overflow-y: auto;
+}
+
+.custom-comments-scrollbar::-webkit-scrollbar {
+  width: 15px;
+}
+
+.custom-comments-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 2px;
+}
+
+.custom-comments-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  min-height: 40%;
+  background-image: url("./assets/menu.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px;
+}
+
+.custom-comments-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #ccc;
+}
+
+/* Firefox scrollbar styles */
+.custom-comments-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0e0 transparent;
+}
