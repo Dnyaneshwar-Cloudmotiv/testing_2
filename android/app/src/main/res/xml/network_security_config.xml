@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.1.2</domain> <!-- Allow local development -->
+    </domain-config>
+    
+    <!-- Allow all HTTPS connections for API calls -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Specific domains for API endpoints -->
+    <domain-config>
+        <domain includeSubdomains="true">execute-api.ap-south-1.amazonaws.com</domain>
+        <domain includeSubdomains="true">amazonaws.com</domain>
+        <domain includeSubdomains="true">voiz-webui-documents.s3.ap-south-1.amazonaws.com</domain>
+    </domain-config>
+</network-security-config>

@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "144502365323",
+    "project_id": "voiz-android",
+    "storage_bucket": "voiz-android.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144502365323:android:f869573898edabbe8a088e",
+        "android_client_info": {
+          "package_name": "com.example.voiceapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144502365323-9hko1rj6g01bl4dv845a25qoinq7cs1r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.voiceapp",
+            "certificate_hash": "d470d3bd709d27c0d5fa8ca87d2201cb4555de23"
+          }
+        },
+        {
+          "client_id": "144502365323-jgar70rqm825n8b4c173r0pc1ggvpf6f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARz5pmY6SZgL_feXnsSpUCngFfInaSQyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144502365323-jgar70rqm825n8b4c173r0pc1ggvpf6f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "144502365323-453mt4lsmf89p51frcv3e6s280jhnvvs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.voiceapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144502365323:android:11a21244ab5ee44b8a088e",
+        "android_client_info": {
+          "package_name": "com.voizapp.voiceapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144502365323-au2hd0qqn359cmk6ecdkduqeppt2fa8c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.voizapp.voiceapp",
+            "certificate_hash": "3cf0ff740346b52a2b026962205404feb6467dbf"
+          }
+        },
+        {
+          "client_id": "144502365323-jgar70rqm825n8b4c173r0pc1ggvpf6f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARz5pmY6SZgL_feXnsSpUCngFfInaSQyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144502365323-jgar70rqm825n8b4c173r0pc1ggvpf6f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "144502365323-453mt4lsmf89p51frcv3e6s280jhnvvs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.voiceapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
