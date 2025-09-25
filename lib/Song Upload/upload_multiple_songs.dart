@@ -799,7 +799,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
       print('- Duration: ${song.span}');
 
       final presignedResponse = await http.post(
-        Uri.parse('https://y6mkdwd71i.execute-api.ap-south-1.amazonaws.com/voiznew/generate-presigned-urls-bulk-parallel'),
+        Uri.parse('https://3gvsubdh31.execute-api.ap-south-1.amazonaws.com/voiznew/generate-presigned-urls-bulk-parallel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'songs': [
@@ -906,7 +906,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
 
       // Step 1: Fetch admin emails
       final adminEmailsResponse = await http.get(
-        Uri.parse('https://knjixc4wse.execute-api.ap-south-1.amazonaws.com/admin_report/get_admin_emails'),
+        Uri.parse('https://gc5yd9g903.execute-api.ap-south-1.amazonaws.com/admin_report/get_admin_emails'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(Duration(seconds: 30));
 
@@ -934,7 +934,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
       // Step 2: Send notification to admin emails
       print('Sending notification to ${adminEmails.length} admins for songs: $songTitlesList');
       final notificationResponse = await http.post(
-        Uri.parse('https://eegkqhka27.execute-api.ap-south-1.amazonaws.com/new/AdminSendApprovalEmailForMultipleSongs'),
+        Uri.parse('https://2k3idh0o26.execute-api.ap-south-1.amazonaws.com/new/AdminSendApprovalEmailForMultipleSongs'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'adminEmails': adminEmails,
@@ -976,7 +976,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
 
     try {
       final notificationResponse = await http.post(
-        Uri.parse('https://eegkqhka27.execute-api.ap-south-1.amazonaws.com/new/AdminSendApprovalEmailForMultipleSongs'),
+        Uri.parse('https://2k3idh0o26.execute-api.ap-south-1.amazonaws.com/new/AdminSendApprovalEmailForMultipleSongs'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'adminEmails': fallbackEmails,
@@ -1112,7 +1112,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://g076kfytq4.execute-api.ap-south-1.amazonaws.com/voiznew/processMultipleSongs'),
+        Uri.parse('https://5qxwn3x3z2.execute-api.ap-south-1.amazonaws.com/voiznew/processMultipleSongs'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       ).timeout(Duration(minutes: 10));

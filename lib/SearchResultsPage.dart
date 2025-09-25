@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:algolia_helper_flutter/algolia_helper_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:voiceapp/artist.dart';
@@ -107,19 +108,18 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   late Debouncer _tapDebouncer;
 
 
-  final HitsSearcher _artistSearcher = HitsSearcher(
-    applicationID: 'Y84C0QMOOU',
-    apiKey: 'e4bb4276844957c3a9d8f3ce71f80026',
+final HitsSearcher _artistSearcher = HitsSearcher(
+    applicationID: 'GBYVEIU9LF',
+    apiKey: 'f20f4880d4e810614fb7cf9d92a373e7',
     indexName: 'Artist_index',
   );
 
 
   final HitsSearcher _songSearcher = HitsSearcher(
-    applicationID: 'Y84C0QMOOU',
-    apiKey: 'e4bb4276844957c3a9d8f3ce71f80026',
+    applicationID: 'GBYVEIU9LF',
+    apiKey: 'f20f4880d4e810614fb7cf9d92a373e7',
     indexName: 'song_index',
   );
-
 
 
 
@@ -176,18 +176,19 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         final startDate = sevenDaysAgo.toUtc().toIso8601String();
 
         // Add timeout to API calls
-        final artistResponse = await ApiService.post(
-          'https://analytics.algolia.net/1/indexes/Artist_index/popular-searches',
-          body: {
-            'startDate': startDate,
-            'endDate': endDate,
-            'limit': 10,
-            'tags': 'country:IN'
-          },
+        final artistResponse = await http.post(
+          Uri.parse('https://analytics.algolia.net/1/indexes/Artist_index/popular-searches'),
           headers: {
-            'X-Algolia-API-Key': 'd2edf43150e995fbdc9e206fbbcde59e',
-            'X-Algolia-Application-Id': 'XFXB8RNHVV',
+            'X-Algolia-API-Key': '00174c3e702b3bead464a7cc0e3fe329',
+            'X-Algolia-Application-Id': 'GBYVEIU9LF',
+            'Content-Type': 'application/json',
           },
+          body: json.encode({
+            "startDate": startDate,
+            "endDate": endDate,
+            "size": 3,
+            "source": "clicks"
+          }),
         ).timeout(
           Duration(seconds: 10),
           onTimeout: () {
@@ -195,18 +196,19 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           },
         );
 
-        final songResponse = await ApiService.post(
-          'https://analytics.algolia.net/1/indexes/song_index/popular-searches',
-          body: {
+         final songResponse = await http.post(
+          Uri.parse('https://analytics.algolia.net/1/indexes/song_index/popular-searches'),
+          headers: {
+            'X-Algolia-API-Key': '00174c3e702b3bead464a7cc0e3fe329',
+            'X-Algolia-Application-Id': 'GBYVEIU9LF',
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
             "startDate": startDate,
             "endDate": endDate,
             "size": 2,
             "source": "clicks"
-          },
-          headers: {
-            'X-Algolia-API-Key': 'd2edf43150e995fbdc9e206fbbcde59e',
-            'X-Algolia-Application-Id': 'Y84C0QMOOU',
-          },
+          }),
         ).timeout(
           Duration(seconds: 10),
           onTimeout: () {

@@ -911,7 +911,7 @@ class _SongUploadScreenState extends State<SongUploadScreen_stes> {
       final jsonBody = jsonEncode(presignedPayload);
       print('Sending presigned URL payload: $jsonBody');
       final presignedRes = await ApiService.post(
-        'https://y6mkdwd71i.execute-api.ap-south-1.amazonaws.com/voiznew/generate-presigned-urls-for-existing-album',
+        'https://3gvsubdh31.execute-api.ap-south-1.amazonaws.com/voiznew/generate-presigned-urls-for-existing-album',
         body: presignedPayload,
       ).timeout(Duration(seconds: 30));
       print('Presigned URL response status: ${presignedRes.statusCode}, body: ${presignedRes.body}');
@@ -973,7 +973,7 @@ class _SongUploadScreenState extends State<SongUploadScreen_stes> {
       };
       print('Submitting song metadata with payload: ${jsonEncode(payload)}');
       final response = await ApiService.post(
-        'https://g076kfytq4.execute-api.ap-south-1.amazonaws.com/voiznew/addSongToAlbum',
+        'https://5qxwn3x3z2.execute-api.ap-south-1.amazonaws.com/voiznew/addSongToAlbum',
         body: payload,
       );
       print('Add Song API Response Status: ${response.statusCode}, Body: ${response.body}');

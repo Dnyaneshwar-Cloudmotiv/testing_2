@@ -184,14 +184,14 @@ class ApiService {
       if (response.statusCode == 400) {
         // If 400 error, fall back to approverListPhone but include all statuses
         print('⚠️ AdminSongs endpoint returned 400, falling back to approverListPhone');
-        return await get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/approverListPhone?user_id=$userId');
+        return await get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/approverListPhone?user_id=$userId');
       }
       
       return response;
     } catch (e) {
       print('❌ Error with adminSongs endpoint: $e, falling back to approverListPhone');
       // Fallback to the original endpoint
-      return await get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/approverListPhone?user_id=$userId');
+      return await get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/approverListPhone?user_id=$userId');
     }
   }
 
@@ -424,7 +424,7 @@ class ApiService {
 
   /// Gets detailed song counts for analytics (plays, favorites, reactions, shares, playlist additions)
   static Future<http.Response> getSongCounts(String songId) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/song/counts?song_id=$songId');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/song/counts?song_id=$songId');
   }
 
   // Music Player APIs
@@ -569,7 +569,7 @@ class ApiService {
 
   /// Clears profile photo
   static Future<http.Response> clearProfilePhoto(String userId, String timestamp) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/clearProfilePhoto';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/clearProfilePhoto';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -579,7 +579,7 @@ class ApiService {
 
   /// Clears cover page photo
   static Future<http.Response> clearCoverPagePhoto(String userId, String timestamp) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/clearCoverPagePhoto';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/clearCoverPagePhoto';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -603,7 +603,7 @@ class ApiService {
 
   /// Notifies server about cover page upload
   static Future<http.Response> notifyCoverPageUpload({required String userId, required String fileName, required String timestamp}) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/coverPageUrl';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/coverPageUrl';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -653,18 +653,18 @@ class ApiService {
   // Registration specific APIs
   static Future<http.Response> saveUserToApi(String email) {
     return post(
-      'https://i3lmfmc1h2.execute-api.ap-south-1.amazonaws.com/voizpost/save/usernew',
+      'https://sxff4q77h9.execute-api.ap-south-1.amazonaws.com/voizpost/save/usernew',
       body: {'EmailId': email},
     );
   }
 
   static Future<http.Response> fetchUserIdAndCategory(String email) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/userId?email=$email');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/userId?email=$email');
   }
 
   static Future<http.Response> fetchGooglePassword(String email) {
     return post(
-      'https://knjixc4wse.execute-api.ap-south-1.amazonaws.com/admin_report/create_password',
+      'https://gc5yd9g903.execute-api.ap-south-1.amazonaws.com/admin_report/create_password',
       body: {'email': email},
     );
   }
@@ -674,7 +674,7 @@ class ApiService {
     required String userId,
     required String imageUrl,
   }) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/profilePhotoUrl';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/profilePhotoUrl';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -687,7 +687,7 @@ class ApiService {
     required String userId,
     required String fileName,
   }) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/generate-presigned-url/profilePhoto';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/generate-presigned-url/profilePhoto';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -699,7 +699,7 @@ class ApiService {
     required String userId,
     required String fileName,
   }) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/generate-presigned-url/coverPage';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/generate-presigned-url/coverPage';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -714,7 +714,7 @@ class ApiService {
     required String stageName,
     required String updatedTimestamp,
   }) async {
-    final url = 'https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/user/editprofile';
+    final url = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/user/editprofile';
     final token = await getAuthToken();
     return post(url, body: {
       'user_id': userId,
@@ -727,12 +727,12 @@ class ApiService {
 
   // Additional social features API
   static Future<http.Response> getFollowersList(String userId) {
-    return get('https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/followers/List?user_id=$userId');
+    return get('https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/followers/List?user_id=$userId');
   }
 
   // Artist profile specific APIs
   static Future<http.Response> getSongsByAlbumId(String userId, String albumId) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/artist/album/songs?user_id=$userId&album_id=$albumId');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/artist/album/songs?user_id=$userId&album_id=$albumId');
   }
 
   static Future<http.Response> followArtist({
@@ -741,7 +741,7 @@ class ApiService {
     required String followingId,
   }) {
     return post(
-      'https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/follow',
+      'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/follow',
       body: {
         'updatedTimestamp': updatedTimestamp,
         'followed_id': followedId,
@@ -756,7 +756,7 @@ class ApiService {
     required List<String> followingIds,
   }) {
     return post(
-      'https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/unfollow',
+      'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/unfollow',
       body: {
         'updatedTimestamp': updatedTimestamp,
         'followed_id': followedId,
@@ -766,24 +766,24 @@ class ApiService {
   }
 
   static Future<http.Response> getArtistLanguages(String userId) {
-    return get('https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/language?user_id=$userId');
+    return get('https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/language?user_id=$userId');
   }
 
   static Future<http.Response> getArtistGenres(String userId) {
-    return get('https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/genre?user_id=$userId');
+    return get('https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/genre?user_id=$userId');
   }
 
   static Future<http.Response> getSongsForLanguage(String userId, String language) {
-    return get('https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/language/songs?user_id=$userId&languages=$language');
+    return get('https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/language/songs?user_id=$userId&languages=$language');
   }
 
   static Future<http.Response> getSongsForGenre(String genre, String userId) {
-    return get('https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/genre/songs?genre=$genre&user_id=$userId');
+    return get('https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/genre/songs?genre=$genre&user_id=$userId');
   }
 
   // Profile viewing specific APIs
   static Future<http.Response> getUserCoverImage(String userId) {
-    return get('https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/user/getcoverpage?user_id=$userId');
+    return get('https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/user/getcoverpage?user_id=$userId');
   }
 
   static Future<http.Response> updateAutoplayStatus({
@@ -792,7 +792,7 @@ class ApiService {
     required String updatedTimestamp,
   }) {
     return post(
-      'https://i3lmfmc1h2.execute-api.ap-south-1.amazonaws.com/voizpost/save/autoplaystatus',
+      'https://sxff4q77h9.execute-api.ap-south-1.amazonaws.com/voizpost/save/autoplaystatus',
       body: {
         'user_id': userId,
         'isAutorelatedtrackenable': isAutoplayEnabled,
@@ -803,11 +803,11 @@ class ApiService {
 
   // Playlist song management APIs
   static Future<http.Response> getPlaylistSongs(String playlistId) {
-    return get('https://67avbampgi.execute-api.ap-south-1.amazonaws.com/voiz/playlist/songList?playlist_id=$playlistId');
+    return get('https://t48nholdt7.execute-api.ap-south-1.amazonaws.com/voiz/playlist/songList?playlist_id=$playlistId');
   }
 
   static Future<http.Response> getSongStreamingUrl(String songName) {
-    return get('https://g076kfytq4.execute-api.ap-south-1.amazonaws.com/voiznew/getSongUrl?songName=$songName.mp3');
+    return get('https://5qxwn3x3z2.execute-api.ap-south-1.amazonaws.com/voiznew/getSongUrl?songName=$songName.mp3');
   }
 
   static Future<http.Response> removeSongFromPlaylist({
@@ -816,7 +816,7 @@ class ApiService {
     required String updatedTimestamp,
   }) {
     return post(
-      'https://67avbampgi.execute-api.ap-south-1.amazonaws.com/voiz/playlist/removeSong',
+      'https://t48nholdt7.execute-api.ap-south-1.amazonaws.com/voiz/playlist/removeSong',
       body: {
         'playlist_id': playlistId,
         'songIds': songIds,
@@ -826,7 +826,7 @@ class ApiService {
   }
 
   static Future<http.Response> getSongCredits(String songId) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/song/info?song_id=$songId');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/song/info?song_id=$songId');
   }
 
   static Future<http.Response> incrementSongShareCount({
@@ -834,7 +834,7 @@ class ApiService {
     required String updatedTimestamp,
   }) {
     return post(
-      'https://i3lmfmc1h2.execute-api.ap-south-1.amazonaws.com/voizpost/save/shareSongCount',
+      'https://sxff4q77h9.execute-api.ap-south-1.amazonaws.com/voizpost/save/shareSongCount',
       body: {
         'song_id': songId,
         'updatedTimestamp': updatedTimestamp,
@@ -844,54 +844,54 @@ class ApiService {
 
   // Album management APIs
   static Future<http.Response> getUserAlbums(String userId) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/userAlbums?user_id=$userId');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/userAlbums?user_id=$userId');
   }
 
   /// Gets approved songs list for a user (Analytics dashboard)
   static Future<http.Response> getApprovedSongsList(String userId) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/approverListPhone?user_id=$userId');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/approverListPhone?user_id=$userId');
   }
 
   // Share song handler specific APIs (different endpoints than existing methods)
   static Future<http.Response> getSharedSongDetails(String songId) {
-    return get('https://2g8ww6dm3i.execute-api.ap-south-1.amazonaws.com/voizadmin/admin/song/detail?song_id=$songId');
+    return get('https://6htqk6p035.execute-api.ap-south-1.amazonaws.com/voizadmin/admin/song/detail?song_id=$songId');
   }
 
   static Future<http.Response> getSharedArtistDetails(String artistId) {
-    return get('https://e1jyzvq758.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/details?user_id=$artistId');
+    return get('https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/artist/details?user_id=$artistId');
   }
 
   static Future<http.Response> getSharedFollowingList(String userId) {
-    return get('https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/following/List?user_id=$userId');
+    return get('https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/following/List?user_id=$userId');
   }
 
   static Future<http.Response> getSharedFollowerCount(String artistId) {
-    return get('https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/followers/count?user_id=$artistId');
+    return get('https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/followers/count?user_id=$artistId');
   }
 
   // Additional info APIs
   static Future<http.Response> updateUserProfile(Map<String, dynamic> profileData) {
     return post(
-      'https://i3lmfmc1h2.execute-api.ap-south-1.amazonaws.com/voizpost/save/updateprofiledetails',
+      'https://sxff4q77h9.execute-api.ap-south-1.amazonaws.com/voizpost/save/updateprofiledetails',
       body: profileData,
     );
   }
 
   static Future<http.Response> getUserIdByEmail(String email) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/userId?email=$email');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/userId?email=$email');
   }
 
   // Feedback APIs
   static Future<http.Response> submitUserFeedback(Map<String, dynamic> feedbackData) {
     return post(
-      'https://6p682bzafk.execute-api.ap-south-1.amazonaws.com/voiz/feedback',
+      'https://01bgjtw3s9.execute-api.ap-south-1.amazonaws.com/voiz/feedback',
       body: feedbackData,
     );
   }
 
   // Rejection APIs
   static Future<http.Response> getRejectionDetails(String workflowId) {
-    return get('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/song/rejected/reason?workflowId=$workflowId');
+    return get('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/song/rejected/reason?workflowId=$workflowId');
   }
 
   /// Fetches details of a rejected song for editing
@@ -899,8 +899,8 @@ class ApiService {
   /// [isAlbumSong] Whether this is an album song (uses different endpoint)
   static Future<http.Response> getRejectedSongDetails(String songId, {bool isAlbumSong = false}) {
     final endpoint = isAlbumSong 
-        ? 'https://rjuqqdufq2.execute-api.ap-south-1.amazonaws.com/update/updateRejectedAlbumSongs/getSongData'
-        : 'https://rjuqqdufq2.execute-api.ap-south-1.amazonaws.com/update/updateRejectedSong/getSongData';
+        ? 'https://cgos5ixza4.execute-api.ap-south-1.amazonaws.com/update/updateRejectedAlbumSongs/getSongData'
+        : 'https://cgos5ixza4.execute-api.ap-south-1.amazonaws.com/update/updateRejectedSong/getSongData';
     
     return get('$endpoint?song_id=$songId');
   }
@@ -909,7 +909,7 @@ class ApiService {
   /// [songData] Map containing the song data to update
   static Future<http.Response> updateRejectedSong(Map<String, dynamic> songData) {
     return post(
-      'https://rjuqqdufq2.execute-api.ap-south-1.amazonaws.com/update/updateRejectedSong',
+      'https://cgos5ixza4.execute-api.ap-south-1.amazonaws.com/update/updateRejectedSong',
       body: songData,
     );
   }
@@ -918,7 +918,7 @@ class ApiService {
   /// [albumSongData] Map containing the album song data to update
   static Future<http.Response> updateRejectedAlbumSong(Map<String, dynamic> albumSongData) {
     return post(
-      'https://rjuqqdufq2.execute-api.ap-south-1.amazonaws.com/update/updateRejectedAlbumSongs',
+      'https://cgos5ixza4.execute-api.ap-south-1.amazonaws.com/update/updateRejectedAlbumSongs',
       body: albumSongData,
     );
   }
@@ -926,7 +926,7 @@ class ApiService {
   // Account merging APIs
   static Future<http.Response> createMergePassword(String email) {
     return post(
-      'https://knjixc4wse.execute-api.ap-south-1.amazonaws.com/admin_report/create_password',
+      'https://gc5yd9g903.execute-api.ap-south-1.amazonaws.com/admin_report/create_password',
       body: {'email': email},
     );
   }
@@ -935,7 +935,7 @@ class ApiService {
   /// [songId] The ID of the song to increment play count for
   /// [userId] The ID of the user who played the song
   static Future<http.Response> incrementPlayCount(String songId, String userId) async {
-    final String apiUrl = 'https://i3lmfmc1h2.execute-api.ap-south-1.amazonaws.com/voizpost/save/playcount';
+    final String apiUrl = 'https://sxff4q77h9.execute-api.ap-south-1.amazonaws.com/voizpost/save/playcount';
     final String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
 
     final requestBody = {
@@ -962,7 +962,7 @@ class ApiService {
   static Future<Map<String, dynamic>?> getUserDetails(String email) async {
     try {
       final response = await get(
-        'https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/userId?email=$email',
+        'https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/userId?email=$email',
         timeout: const Duration(seconds: 15),
       );
 
@@ -995,7 +995,7 @@ class ApiService {
   /// [email] The email address to generate a password for
   /// Returns a Future that resolves to the generated password
   static Future<String> generateGooglePassword(String email) async {
-    const String apiUrl = 'https://knjixc4wse.execute-api.ap-south-1.amazonaws.com/admin_report/create_password';
+    const String apiUrl = 'https://gc5yd9g903.execute-api.ap-south-1.amazonaws.com/admin_report/create_password';
     
     try {
       final response = await post(
@@ -1050,7 +1050,7 @@ class ApiService {
   /// [deviceInfo] Map containing device information
   /// Returns true if the log was successful
   static Future<bool> logDeviceInfo(Map<String, String> deviceInfo) async {
-    const String apiUrl = 'https://15pi50g5p5.execute-api.ap-south-1.amazonaws.com/dev/log';
+    const String apiUrl = 'https://agtffbm7a7.execute-api.ap-south-1.amazonaws.com/dev/log';
     
     try {
       final uri = Uri.parse('$apiUrl?'

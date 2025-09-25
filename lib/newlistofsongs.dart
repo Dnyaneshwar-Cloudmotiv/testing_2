@@ -703,7 +703,7 @@ class _ListPageState extends State<ListPage> {
   }
 
   Future<List<Map<String, String>>> searchSongs(String query) async {
-    final url = Uri.parse('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/search?name=$query');
+    final url = Uri.parse('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/search?name=$query');
     try {
       final response = await ApiService.searchSongs({'name': query});
       if (response.statusCode == 200) {

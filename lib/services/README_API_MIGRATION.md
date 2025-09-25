@@ -40,7 +40,7 @@ import 'package:your_app/services/api_endpoints.dart';
 #### Before (Old Way):
 ```dart
 final response = await http.get(
-  Uri.parse('https://2a11hm9ls1.execute-api.ap-south-1.amazonaws.com/voizfavorite/song/favoriteReaction?user_id=$userId&song_id=$songId'),
+  Uri.parse('https://uq9uwbgpv7.execute-api.ap-south-1.amazonaws.com/voizfavorite/song/favoriteReaction?user_id=$userId&song_id=$songId'),
 );
 
 if (response.statusCode == 200) {

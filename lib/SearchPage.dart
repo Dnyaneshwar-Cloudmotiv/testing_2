@@ -174,7 +174,7 @@ void initState() {
 
   Future<void> _fetchFollowingList() async {
     final followingUrl = Uri.parse(
-        'https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/following/List?user_id=${ProfileManager().getUserId()}');
+        'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/following/List?user_id=${ProfileManager().getUserId()}');
 
     try {
       final response = await ApiService.get(followingUrl.toString());
@@ -235,7 +235,7 @@ void initState() {
     try {
       await _fetchFollowingList();
       if (_allArtistData.isEmpty) {
-        final artistUrl = Uri.parse('https://ae6phpvtj3.execute-api.ap-south-1.amazonaws.com/voiz/api/artist');
+        final artistUrl = Uri.parse('https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/artist');
         final artistResponse = await ApiService.get(artistUrl.toString());
 
         if (ApiService.isSuccessResponse(artistResponse)) {
@@ -536,7 +536,7 @@ Future<void> _followArtist(String followedId, String followingId, int index) asy
 
   Future<void> _fetchUpdatedFollowerCount(String userId, int index) async {
   final followersUrl = Uri.parse(
-      'https://j2l5vmk441.execute-api.ap-south-1.amazonaws.com/follow/api/followers/count?user_id=$userId');
+      'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/followers/count?user_id=$userId');
 
   try {
         final followersResponse = await ApiService.get(followersUrl.toString());

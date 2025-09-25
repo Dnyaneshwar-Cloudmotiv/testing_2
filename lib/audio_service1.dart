@@ -768,10 +768,10 @@ class AudioService {
           try {
             artUri = song['coverPage'] != null && song['coverPage']!.isNotEmpty
                 ? Uri.parse(song['coverPage']!)
-                : Uri.parse('https://example.com/default.jpg');
+                : Uri.parse('https://example.com/mic.jpg');
           } catch (e) {
             print('Error parsing cover page URL: $e');
-            artUri = Uri.parse('https://example.com/default.jpg');
+            artUri = Uri.parse('https://example.com/mic.jpg');
           }
 
           final source = song['genre'] ?? song['artist'] ?? song['playlistName'] ?? 'Music';

@@ -2699,7 +2699,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
                 );
               }
 
-              final String imagePath = mediaItem.artUri?.toString() ?? 'assets/default_image.jpg';
+              final String imagePath = mediaItem.artUri?.toString() ?? 'assets/mic.jpg';
               final String artist = mediaItem.artist ?? 'Unknown Artist';
               String songId = mediaItem.id;
 
@@ -3092,7 +3092,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
                                                   Object exception,
                                                   StackTrace? stackTrace) {
                                                 return Image.asset(
-                                                  'assets/default_image.jpg',
+                                                  'assets/mic.jpg',
                                                   fit: BoxFit.cover,
                                                 );
                                               },

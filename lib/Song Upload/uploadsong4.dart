@@ -239,7 +239,7 @@ Future<void> _pickLyricsFile() async {
 
   final String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
 //print(creditsMap);
-    final uri = Uri.parse('https://g076kfytq4.execute-api.ap-south-1.amazonaws.com/voiznew/processSong');
+    final uri = Uri.parse('https://5qxwn3x3z2.execute-api.ap-south-1.amazonaws.com/voiznew/processSong');
     final headers = {
       'Content-Type': 'application/json',
     };
