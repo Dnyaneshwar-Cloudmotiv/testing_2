@@ -617,10 +617,12 @@ class _AdminSongListState extends State<AdminSongList> {
                 ),
               ),
             ] else if (albums.isEmpty && singleSongs.isEmpty) ...[
-              Center(
-                child: Text(
-                  'No content available in this category',
-                  style: TextStyle(color: Colors.grey[400], fontSize: 16),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    'No content available in this category',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                  ),
                 ),
               ),
             ],

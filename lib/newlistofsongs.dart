@@ -1017,9 +1017,12 @@ class _ListPageState extends State<ListPage> {
         if (targetAlbum != null) {
           List<dynamic> songsInAlbum = targetAlbum['songs'] ?? [];
           for (var song in songsInAlbum) {
+            final artist = (song['stage_name']?.isNotEmpty == true)
+                ? song['stage_name']
+                : song['FullName'] ?? 'Unknown Artist';
             allSongs.add({
               'title': song['songName'] ?? 'Unknown Title',
-              'artist': song['stage_name'] ?? 'Unknown Artist',
+              'artist': artist,
               'song_id': song['song_id'] ?? 'Unknown Song Id',
               'coverPage': song['coverPageUrl'] ?? 'assets/mic.jpg',
               'duration': song['span'] ?? '0:00',

@@ -369,7 +369,19 @@ void initState() {
       }
 
       int songCount = artistJson['songCount'] ?? 0;
-      bool isFollowing = _followingIds.contains(userId);
+      
+      // 🔧 Check cache first, then fallback to API state
+      bool isFollowing;
+      final cachedState = ApiService.getCachedFollowState(userId);
+      if (cachedState != null && ApiService.isCacheValid()) {
+        // Use cached state (persistent across navigation)
+        isFollowing = cachedState;
+        print('🔍 Using cached follow state for $userId: $isFollowing');
+      } else {
+        // Fallback to API state
+        isFollowing = _followingIds.contains(userId);
+        print('🔍 Using API follow state for $userId: $isFollowing');
+      }
 
       // Fetch follower count
       final followersResponse = await ApiService.getFollowerCount(userId);
@@ -476,27 +488,47 @@ Future<void> _followArtist(String followedId, String followingId, int index) asy
       });
 
       if (ApiService.isSuccessResponse(response)) {
-
-         await _fetchUpdatedFollowerCount(followingId, index);
-        // Assuming the API returns success
-        setState(() {
-          _artists[index].isFollowing = true;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Successfully followed ${_artists[index].stageName}')),
-        );
+        print('✅ Follow API successful for artist: $followingId');
+        
+        // 🔧 Update cache immediately for persistence
+        ApiService.updateFollowStateCache(followingId, true);
+        
+        // Update local state
+        if (_mounted && mounted) {
+          setState(() {
+            _artists[index].isFollowing = true;
+            // Add to local following list for immediate consistency
+            if (!_followingIds.contains(followingId)) {
+              _followingIds.add(followingId);
+            }
+          });
+        }
+        
+        // Fetch updated follower count
+        await _fetchUpdatedFollowerCount(followingId, index);
+        
+        // Safe context usage for SnackBar
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Successfully followed ${_artists[index].stageName}')),
+          );
+        }
       } else {
         // Handle failure
-        print('Failed to follow artist. Status code: ${response.statusCode}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to follow artist')),
-        );
+        print('❌ Failed to follow artist. Status code: ${response.statusCode}');
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to follow artist')),
+          );
+        }
       }
     } catch (e) {
-      print('Error following artist: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error following artist')),
-      );
+      print('❌ Error following artist: $e');
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error following artist')),
+        );
+      }
     }
   }
 
@@ -512,18 +544,44 @@ Future<void> _followArtist(String followedId, String followingId, int index) asy
       });
 
       if (ApiService.isSuccessResponse(response)) {
+        print('✅ Unfollow API successful for artist: $unfollowingId');
+        
+        // 🔧 Update cache immediately for persistence
+        ApiService.updateFollowStateCache(unfollowingId, false);
+        
+        // Update local state
+        if (_mounted && mounted) {
+          setState(() {
+            _artists[index].isFollowing = false;
+            // Remove from local following list for immediate consistency
+            _followingIds.remove(unfollowingId);
+          });
+        }
+        
+        // Fetch updated follower count
         await _fetchUpdatedFollowerCount(unfollowingId, index);
-        setState(() {
-          _artists[index].isFollowing = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unfollowed ${_artists[index].stageName}')),
-        );
+        
+        // Safe context usage for SnackBar
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Unfollowed ${_artists[index].stageName}')),
+          );
+        }
       } else {
-        print('Failed to unfollow artist.');
+        print('❌ Failed to unfollow artist. Status code: ${response.statusCode}');
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to unfollow artist')),
+          );
+        }
       }
     } catch (e) {
-      print('Error unfollowing artist: $e');
+      print('❌ Error unfollowing artist: $e');
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error unfollowing artist')),
+        );
+      }
     }
   }
 
@@ -685,9 +743,12 @@ void _navigateToMusicArtistPage(Artist artist, int index) async {
      body: RefreshIndicator(
         onRefresh: () async {
           await _refreshArtists(); // Refresh artist data for all cards
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Artists refreshed!')),
-          );
+          // Safe context usage for SnackBar
+          if (_mounted && mounted && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Artists refreshed!')),
+            );
+          }
         },
         child:  Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -844,9 +905,12 @@ void _navigateToMusicArtistPage(Artist artist, int index) async {
                   // });
                   print("Refresh completed");
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Artists refreshed!')),
-                  );
+                  // Safe context usage for SnackBar
+                  if (_mounted && mounted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Artists refreshed!')),
+                    );
+                  }
                 },
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical, // Allows vertical refresh pull
@@ -1175,9 +1239,12 @@ void _navigateToMusicArtistPage(Artist artist, int index) async {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No songs available for $title')),
-        );
+        // Safe context usage for SnackBar
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No songs available for $title')),
+          );
+        }
       }
     },
     child: Column(

@@ -2277,18 +2277,31 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
                                                         playlists, child) {
                                                       return playlists.isEmpty
                                                           ? Center(
-                                                        child: Text(
-                                                          'No playlists found. Create a new one!',
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .grey,
-                                                              fontSize: 16),
-                                                        ),
-                                                      )
+                                                              child: Column(
+                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                children: [
+                                                                  Text(
+                                                                    'No playlists found.',
+                                                                    style: TextStyle(
+                                                                        color: Colors.grey,
+                                                                        fontSize: 16),
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                  SizedBox(height: 8),
+                                                                  Text(
+                                                                    'Create a new one!',
+                                                                    style: TextStyle(
+                                                                        color: Colors.grey,
+                                                                        fontSize: 16),
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            )
                                                           : ListView.builder(
                                                         controller: scrollController,
-                                                        itemCount: playlists
-                                                            .length,
+                                                        itemCount: playlists.length,
                                                         itemBuilder: (context,
                                                             index) {
                                                           final playlist = playlists[index];

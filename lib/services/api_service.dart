@@ -16,6 +16,11 @@ class ApiService {
   ApiService._internal();
 
   static final http.Client _client = http.Client();
+  
+  // 🔧 Follow State Cache - Persistent across widget lifecycles
+  static Map<String, bool> _followStateCache = {};
+  static DateTime _cacheTimestamp = DateTime.now();
+  static const Duration _cacheValidityDuration = Duration(minutes: 10);
 
   // Common headers
   static const Map<String, String> _jsonHeaders = {
@@ -539,6 +544,46 @@ class ApiService {
 
   static void _logError(String method, String url, dynamic error) {
     print('[$method] $url - Error: $error');
+  }
+
+  // 🔧 Follow State Cache Management Methods
+  
+  /// Updates the follow state cache for a user
+  static void updateFollowStateCache(String userId, bool isFollowing) {
+    _followStateCache[userId] = isFollowing;
+    _cacheTimestamp = DateTime.now();
+    print('🔍 Updated follow cache: $userId -> $isFollowing');
+  }
+  
+  /// Gets the cached follow state for a user, returns null if not cached or expired
+  static bool? getCachedFollowState(String userId) {
+    final cacheAge = DateTime.now().difference(_cacheTimestamp);
+    
+    if (cacheAge > _cacheValidityDuration) {
+      // Cache expired, clear it
+      _followStateCache.clear();
+      print('⚠️ Follow cache expired, cleared');
+      return null;
+    }
+    
+    final cachedState = _followStateCache[userId];
+    if (cachedState != null) {
+      print('✅ Using cached follow state: $userId -> $cachedState');
+    }
+    return cachedState;
+  }
+  
+  /// Checks if the cache is valid (not expired)
+  static bool isCacheValid() {
+    final cacheAge = DateTime.now().difference(_cacheTimestamp);
+    return cacheAge <= _cacheValidityDuration;
+  }
+  
+  /// Clears the follow state cache
+  static void clearFollowStateCache() {
+    _followStateCache.clear();
+    _cacheTimestamp = DateTime.now();
+    print('🔍 Follow cache cleared');
   }
 
   // Songs by genre and user methods

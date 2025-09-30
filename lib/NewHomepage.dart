@@ -2581,6 +2581,7 @@ class _ForYouContentState extends State<ForYouContent> {
                   'genre': song['genre']?['S'] ?? 'Unknown',
                   'album': song['albumName']?['S'] ?? 'Unknown Album',
                   'albumId': song['albumId']?['S'] ?? song['album_id']?['S'] ?? '', // ? Support both albumId and album_id
+                  'artistId': song['user_id']?['S'] ?? song['artistId']?['S'] ?? '', // ? Add artistId for "Go to album" functionality
                 };
               }
 
@@ -2601,6 +2602,7 @@ class _ForYouContentState extends State<ForYouContent> {
                   'genre': (song['genre'] ?? 'Unknown').toString(),
                   'album': (song['albumName'] ?? song['album'] ?? 'Unknown Album').toString(),
                   'albumId': (song['album_id'] ?? song['albumId'] ?? '').toString(), // ? FIXED
+                  'artistId': (song['user_id'] ?? song['artistId'] ?? song['artist_id'] ?? '').toString(), // ? Add artistId for "Go to album" functionality
                 };
               }
 
@@ -2797,6 +2799,9 @@ class _ForYouContentState extends State<ForYouContent> {
                                         'genre': song['genre']?['S'] ?? 'Unknown',
                                         // Add album if available
                                         'album': song['album']?['S'] ?? 'Unknown Album',
+                                        // Add albumId and artistId for "Go to album" functionality
+                                        'albumId': song['album_id']?['S'] ?? song['albumId']?['S'] ?? '',
+                                        'artistId': song['user_id']?['S'] ?? song['artistId']?['S'] ?? '',
                                       };
                                     }
                                     // Try regular JSON format
@@ -2813,6 +2818,9 @@ class _ForYouContentState extends State<ForYouContent> {
                                         'languages': (song['languages'] ?? song['language'] ?? '').toString(),
                                         'genre': (song['genre'] ?? 'Unknown').toString(),
                                         'album': (song['album'] ?? 'Unknown Album').toString(),
+                                        // Add albumId and artistId for "Go to album" functionality
+                                        'albumId': (song['album_id'] ?? song['albumId'] ?? '').toString(),
+                                        'artistId': (song['user_id'] ?? song['artistId'] ?? song['artist_id'] ?? '').toString(),
                                       };
                                     }
 
@@ -3037,15 +3045,18 @@ class _ForYouContentState extends State<ForYouContent> {
                                       'duration': (song['span'] ?? '0:00').toString(),
                                       'languages': (song['languages'] ?? '').toString(),
                                       'genre': (song['genre'] ?? 'Unknown').toString(),
-                                      'album': 'Top 30 Songs',
+                                      'album': (song['album'] ?? 'Unknown Album').toString(),
                                       'playcount': (song['playcount'] ?? 0).toString(),
                                       'rank': (song['rank'] ?? 0).toString(),
+                                      // Add albumId and artistId for "Go to album" functionality
+                                      'albumId': (song['album_id'] ?? song['albumId'] ?? '').toString(),
+                                      'artistId': (song['user_id'] ?? song['artistId'] ?? song['artist_id'] ?? '').toString(),
                                     };
 
                                     // Verify we have the essential fields
                                     if (songMap['song_id']?.isNotEmpty == true &&
                                         songMap['streamingUrl']?.isNotEmpty == true) {
-                                      print('Adding song: ${songMap['title']} with rank: ${songMap['rank']} and playcount: ${songMap['playcount']}');
+                                      print('Adding song: ${songMap['title']} with rank: ${songMap['rank']}, playcount: ${songMap['playcount']}, albumId: ${songMap['albumId']}');
                                       songsList.add(songMap);
                                     } else {
                                       print('Skipping song with missing essential data: ${songMap['title']}');
