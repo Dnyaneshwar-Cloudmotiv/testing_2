@@ -58,7 +58,7 @@ class ApiEndpoints {
   // Profile and user data endpoints
   static const String lovedTracks = 'https://uq9uwbgpv7.execute-api.ap-south-1.amazonaws.com/voizfavorite/api/lovedtracks';
   static const String adminSongs = 'https://6htqk6p035.execute-api.ap-south-1.amazonaws.com/voizadmin/admin/getsongs';
-  static const String userHistory = 'https://3ujjsgu42d.execute-api.ap-south-1.amazonaws.com/history/gethistory';
+  static const String userHistory = 'https://ut0xjqh7f1.execute-api.ap-south-1.amazonaws.com/history/gethistory';
   static const String songDetails = 'https://6htqk6p035.execute-api.ap-south-1.amazonaws.com/voizadmin/admin/song/detail';
   
   // Search and discovery endpoints

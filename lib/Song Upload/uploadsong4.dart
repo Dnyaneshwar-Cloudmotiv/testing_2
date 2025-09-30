@@ -8,6 +8,7 @@ import 'package:audio_duration/audio_duration.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:voiceapp/NewHomepage.dart';
@@ -35,6 +36,7 @@ class UploadSongFourthPage extends StatefulWidget {
 class _UploadSongFourthPageState extends State<UploadSongFourthPage> {
    File? _audioFile;
   File? _lyricsFile;
+  File? _songCoverFile; // State variable for song cover image
    
 
   bool _isTermsAccepted = false;
@@ -47,6 +49,7 @@ class _UploadSongFourthPageState extends State<UploadSongFourthPage> {
   bool _isSuccessDialogOpen = false;
   bool _isLyricsButtonLoading = false;
   bool _isSongButtonLoading = false;
+  bool _isCoverButtonLoading = false; // Loading state for cover image
    bool _isNoInternet = false;
    bool _mounted = true;
    late ConnectivityService _connectivityService;
@@ -92,63 +95,57 @@ class _UploadSongFourthPageState extends State<UploadSongFourthPage> {
   producer= widget.onDataSubmitted['producer'];
     //credits=widget.onDataSubmitted['credits'];
 
-  //   Future.delayed(Duration.zero, () {
   //   _showSuccessDialog(context);
   // });
   
   }
 
    void _setupConnectivityListener() {
-     _connectivityService.connectionStream.listen((hasConnection) {
-       if (!_mounted) return;
+    _connectivityService.connectionStream.listen((hasConnection) {
+      if (!_mounted) return;
 
-       setState(() {
-         _isNoInternet = !hasConnection;
-       });
+      // Only update state if the connection status actually changed
+      if (_isNoInternet == hasConnection) {
+        setState(() {
+          _isNoInternet = !hasConnection;
+        });
 
-       if (hasConnection && _isNoInternet) {
-         _initializeData();
-       }
-     });
+        if (hasConnection && _isNoInternet) {
+          _initializeData();
+        }
+      }
+    });
 
-     _checkConnectivity();
-   }
+    _checkConnectivity();
+  }
 
-   Future<void> _checkConnectivity() async {
-     if (!_mounted) return;
+  Future<void> _checkConnectivity() async {
+    if (!_mounted) return;
 
-     setState(() {
-       _isLoading = true;
-     });
+    setState(() {
+      _isLoading = true;
+    });
 
-     await _connectivityService.checkConnection();
+    await _connectivityService.checkConnection();
 
-     if (!_mounted) return;
+    if (!_mounted) return;
 
-     if (_connectivityService.hasConnection) {
-       await _initializeData();
-     }
+    if (_connectivityService.hasConnection) {
+      await _initializeData();
+    }
 
-     setState(() {
-       _isNoInternet = !_connectivityService.hasConnection;
-       _isLoading = false;
-     });
-   }
+    setState(() {
+      _isNoInternet = !_connectivityService.hasConnection;
+      _isLoading = false;
+    });
+  }
 
    Future<void> _initializeData() async {
      try {
-       if (_mounted) {
-         setState(() {
-           _isLoading = false;
-         });
-       }
+       // Remove unnecessary setState - loading state is managed in _checkConnectivity
+       print('Data initialized successfully');
      } catch (e) {
        print('Error initializing data: $e');
-       if (_mounted) {
-         setState(() {
-           _isLoading = false;
-         });
-       }
      }
    }
 
@@ -219,7 +216,37 @@ Future<void> _pickLyricsFile() async {
     }
   }
 
- bool get _canUpload => _isTermsAccepted && _isContentPolicyAccepted && _isCopyrightAccepted;
+  // Method to pick a song cover image file
+  Future<void> _pickSongCoverFile() async {
+    setState(() => _isCoverButtonLoading = true);
+
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (image != null) {
+        setState(() => _songCoverFile = File(image.path));
+      } else {
+        print('Song cover picking cancelled');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking song cover file: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isCoverButtonLoading = false);
+    }
+  }
+
+  // Check if all necessary uploads and terms are accepted
+  bool get _canUpload =>
+      _isTermsAccepted &&
+          _isContentPolicyAccepted &&
+          _isCopyrightAccepted &&
+          _audioFile != null &&
+          _lyricsFile != null;
 
   void _onCheckboxChanged(bool? value, String checkboxType) {
     setState(() {
@@ -235,42 +262,46 @@ Future<void> _pickLyricsFile() async {
 
  
 
-   Future<void> _postSongMetadata(String fileName,String formattedDuration,String lyricsFileName) async {
-
-  final String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-//print(creditsMap);
+   Future<void> _postSongMetadata(String fileName, String formattedDuration, String lyricsFileName, String? songImageFileName) async {
+    final String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    
     final uri = Uri.parse('https://5qxwn3x3z2.execute-api.ap-south-1.amazonaws.com/voiznew/processSong');
     final headers = {
       'Content-Type': 'application/json',
     };
-    final body = {
-      'user_id': email, // Use the stored variable
-      'FullName': name, // Use the stored variable
-      'stage_name': stageName, // Use the stored variable
-      'songName': songName, // Use the stored variable
-      'languages': language, // Use the stored variable
-      'genre': genre, // Use the stored variable
-      'mood': mood, // Use the stored variable
-      'story': story, // Use the stored variable
-      //'credits': creditsMap, // Use the stored variable
-      'fileName': songName+'.mp3',
+    
+    final body = <String, dynamic>{
+      'user_id': email,
+      'FullName': name,
+      'stage_name': stageName,
+      'songName': songName,
+      'languages': language,
+      'genre': genre,
+      'mood': mood,
+      'story': story,
+      'fileName': songName + '.mp3',
       'span': formattedDuration,
-      'approved':"false",
+      'approved': "false",
       'lyricist': lyricist,
-  'composer': composer,
-  'singer': singer,
-  'producer': producer,
-  'coverPageUrl':"",
-  'playCount':'0',
-  'playlistCount':'0',
-  'shareSongCount':'0',
-  'lyricsFileName':lyricsFileName,
-  'createdTimestamp':timestamp,
-  'updatedTimestamp':timestamp,
-
-
-
+      'composer': composer,
+      'singer': singer,
+      'producer': producer,
     };
+    
+    // Only include cover metadata if song cover exists
+    if (songImageFileName != null && songImageFileName.isNotEmpty) {
+      body['song_cover'] = songImageFileName;
+      body['songImageFileName'] = songImageFileName;
+      body['coverPageUrl'] = "";
+    }
+    
+    // Add remaining common fields
+    body['playCount'] = '0';
+    body['playlistCount'] = '0';
+    body['shareSongCount'] = '0';
+    body['lyricsFileName'] = lyricsFileName;
+    body['createdTimestamp'] = timestamp;
+    body['updatedTimestamp'] = timestamp;
 
     print(body);
 
@@ -279,12 +310,27 @@ Future<void> _pickLyricsFile() async {
 
       if (ApiService.isSuccessResponse(response)) {
         print('Song uploaded successfully');
-        await _createJob(); // Call _createJob after successful upload
-        await _updateSongTable(); // Call _updateSongTable after successful upload
-        await _notifyAdmins(widget.onDataSubmitted['song_name'], widget.onDataSubmitted['name']);
+        
+        // Try background processes but don't fail the upload if they fail
+        try {
+          await _createJob();
+        } catch (e) {
+          print('Warning: Job creation failed: $e');
+        }
+        
+        try {
+          await _updateSongTable();
+        } catch (e) {
+          print('Warning: Song table update failed: $e');
+        }
+        
+        try {
+          await _notifyAdmins(widget.onDataSubmitted['song_name'], widget.onDataSubmitted['name']);
+        } catch (e) {
+          print('Warning: Admin notification failed: $e');
+        }
       } else {
-        print('Failed to upload song: ${ApiService.getErrorMessage(response)}');
-        print('Response body: ${response.body}');
+        throw Exception('Failed to upload song: ${ApiService.getErrorMessage(response)}');
       }
     } catch (e) {
       print('Error uploading song: $e');
@@ -292,7 +338,6 @@ Future<void> _pickLyricsFile() async {
   }
 
   Future<void> _createJob() async {
-  try {
     final response = await ApiService.createJob({
       'key': '$songName.mp3',
       'user_id': email,
@@ -303,14 +348,9 @@ Future<void> _pickLyricsFile() async {
     } else {
       throw Exception('Error creating job: ${ApiService.getErrorMessage(response)}');
     }
-  } catch (e) {
-    print('Error creating job: $e');
-    // Don't show error to user as this is a non-critical background process
   }
-}
 
-Future<void> _updateSongTable() async {
-  try {
+  Future<void> _updateSongTable() async {
     final response = await ApiService.updateSongTable({
       'user_id': email,
       'songName': '$songName.mp3',
@@ -322,11 +362,7 @@ Future<void> _updateSongTable() async {
     } else {
       throw Exception('Error updating song table: ${ApiService.getErrorMessage(response)}');
     }
-  } catch (e) {
-    print('Error updating song table: $e');
-    // Don't show error to user as this is a non-critical background process
   }
-}
 
 // Add this method to your UploadSongFourthPage state class
   Future<void> _notifyAdmins(String songName, String artistName) async {
@@ -428,85 +464,120 @@ Future<void> _updateSongTable() async {
   // 
   
 // //  
-Future<void> _uploadFile() async {
-  // if (_isNoInternet) {
-  //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //     content: Text('No internet connection. Please check your connection and try again.'),
-  //     duration: Duration(seconds: 3),
-  //   ));
-  //   return;
-  // }
-  if (_audioFile == null || _lyricsFile == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Both audio and lyrics files are required')),
-    );
-    return; // Stop execution if files are missing
-  }
+  Future<void> _uploadFile() async {
+    if (_audioFile == null || _lyricsFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Audio and lyrics files are required')),
+      );
+      return;
+    }
 
-  setState(() => _isLoading = true); // Show loader
+    setState(() => _isLoading = true);
 
-  final Stopwatch _stopwatch = Stopwatch();
-  _stopwatch.start();
+    final Stopwatch _stopwatch = Stopwatch();
+    _stopwatch.start();
 
-  try {
-    // Calculate the song duration in MM:SS format
-    var durationInMilliseconds = await AudioDuration.getAudioDuration(_audioFile!.path);
-    String formattedDuration = _formatDuration(durationInMilliseconds!);
+    try {
+      // Calculate the song duration in MM:SS format
+      var durationInMilliseconds = await AudioDuration.getAudioDuration(_audioFile!.path);
+      String formattedDuration = _formatDuration(durationInMilliseconds!);
 
-    final audioBytes = File(_audioFile!.path).readAsBytesSync();
-    final lyricsBytes = File(_lyricsFile!.path).readAsBytesSync();
-    final songNameWithExtension = '$songName.mp3';
-    final lyricsFileName = _lyricsFile!.path.split('/').last;
+      final audioBytes = File(_audioFile!.path).readAsBytesSync();
+      final lyricsBytes = File(_lyricsFile!.path).readAsBytesSync();
+      List<int>? coverBytes = _songCoverFile != null ? File(_songCoverFile!.path).readAsBytesSync() : null;
 
-    // Step 1: Fetch presigned URLs for both song and lyrics in one API call
-    final response = await ApiService.generatePresignedUrls({
-      'songName': songNameWithExtension,
-      'lyricsFileName': lyricsFileName,
-      'user_id': email,
-    });
+      final songNameWithExtension = '$songName.mp3';
+      final lyricsFileName = _lyricsFile!.path.split('/').last;
+      final songImageFileName = _songCoverFile?.path.split('/').last;
+
+      // Step 1: Fetch presigned URLs - conditionally include song cover
+      final Map<String, dynamic> presignedUrlParams = {
+        'songName': songNameWithExtension,
+        'lyricsFileName': lyricsFileName,
+        'user_id': email,
+      };
+      
+      // Only include song cover if it exists
+      if (songImageFileName != null && songImageFileName.isNotEmpty) {
+        presignedUrlParams['song_cover'] = songImageFileName;
+      }
+      
+      final response = await ApiService.generatePresignedUrls(presignedUrlParams);
 
     if (ApiService.isSuccessResponse(response)) {
       final responseBody = jsonDecode(response.body);
+
       final songPresignedUrl = responseBody['songUrl'];
       final lyricsPresignedUrl = responseBody['lyricsUrl'];
+      final coverImagePresignedUrl = responseBody['coverImageUrl'];
 
-      // Step 2: Upload both files to S3 in parallel using the fetched URLs
-      await Future.wait([
+      // Validate required URLs are present
+      if (songPresignedUrl == null || lyricsPresignedUrl == null) {
+        print('API Response Body (200 OK, but missing URLs): ${response.body}');
+        throw Exception('API returned success but missing required presigned URLs (songUrl or lyricsUrl).');
+      }
+      
+      // Only validate cover URL if cover was provided
+      if (coverBytes != null && coverImagePresignedUrl == null) {
+        print('API Response Body (200 OK, but missing cover URL): ${response.body}');
+        throw Exception('API returned success but missing coverImageUrl for provided song cover.');
+      }
+
+      // Step 2: Upload files to S3 - conditionally include cover
+      List<Future> uploads = [
         _uploadToS3(songPresignedUrl, audioBytes, 'audio/mpeg'),
         _uploadToS3(lyricsPresignedUrl, lyricsBytes, 'application/*'),
-      ]);
+      ];
+      
+      // Only upload cover if it exists
+      if (coverBytes != null && coverImagePresignedUrl != null) {
+        uploads.add(_uploadToS3(coverImagePresignedUrl, coverBytes, 'image/jpeg'));
+      }
+      
+      await Future.wait(uploads);
 
-      // Step 3: Post metadata, create job, and update the song table
-      await _postSongMetadata(songNameWithExtension, formattedDuration,lyricsFileName);
+      // Step 3: Post metadata
+      await _postSongMetadata(songNameWithExtension, formattedDuration, lyricsFileName, songImageFileName);
       //await _createJob();
       //await _updateSongTable();
 
       // Step 4: Notify all admin users about the new song upload
       await _notifyAdmins(songName, name);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File uploaded and processed successfully')),
-      );
+      // Only show success UI if widget is still mounted
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File uploaded and processed successfully')),
+        );
 
         _stopwatch.stop();
         
         // Display the elapsed time
         final elapsedTime = _stopwatch.elapsed;
         print("Elapsed time: ${elapsedTime.inSeconds} seconds");
-      _showSuccessDialog(context);
+        _showSuccessDialog(context);
+      }
     } else {
       throw Exception('Error fetching presigned URLs');
     }
   } catch (e) {
-    // Replace the existing error handling with this
     String errorMessage = 'Unable to upload file. Please check your connection and try again.';
+    if (e.toString().contains('missing one or more presigned URLs')) {
+      errorMessage = 'Upload failed: Internal server error (missing upload link). Please contact support and mention the missing URLs.';
+    } else if (e.toString().contains('Connection error')) {
+      errorMessage = 'Upload failed due to connection error during file transfer.';
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(errorMessage)),
-    );
-    print('Upload error occurred: $e'); // Keep log for debugging but don't show to user
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    }
+    print('Upload error occurred: $e');
   } finally {
-    setState(() => _isLoading = false); // Hide loader
+    if (mounted) {
+      setState(() => _isLoading = false); // Hide loader
+    }
   }
 }
 
@@ -808,6 +879,25 @@ child:Padding(
                       ),
                   ],
                 ),
+                SizedBox(height: 30),
+
+                // Upload Cover Image Button with Info Icon
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    buildFilePicker('Cover', _songCoverFile, _pickSongCoverFile),
+                    SizedBox(width: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: RightPinInfoIconWithTooltip(
+                        title: 'Upload Song Cover (Optional)',
+                        infoText: 'Supported image formats: ',
+                        boldInfoText: '.jpg, .jpeg, and .png',
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
             SizedBox(height: 40),
@@ -849,32 +939,34 @@ child:Padding(
             SizedBox(height: 30),
 
             // Upload Button
-            ElevatedButton(
-              onPressed: _canUpload && !_isLoading ? _uploadFile : null,
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(312, 56),
-                backgroundColor: _canUpload && !_isLoading
-                    ? Color(0xFF2644D9)
-                    : Colors.grey,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 60),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+            RepaintBoundary(
+              child: ElevatedButton(
+                onPressed: _canUpload && !_isLoading ? _uploadFile : null,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(312, 56),
+                  backgroundColor: _canUpload && !_isLoading
+                      ? Color(0xFF2644D9)
+                      : Colors.grey,
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 60),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-              ),
-              child: _isLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                "Upload",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold),
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                  "Upload",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],
         ),
-      )
-,),
+      ),
+    ),
       // bottomNavigationBar: GlobalBottomNavigationBar(
       //   email: widget.onDataSubmitted['email'],
       //   fullName: widget.onDataSubmitted['fullName'],
@@ -1146,10 +1238,12 @@ Widget _buildCheckboxnew(String text, bool value, Function(bool) onChanged) {
   );
 }
 
-
-
-   Widget buildFilePicker(String label, File? file, VoidCallback pickFile, {bool isRequired = true}) {
-    bool isLoading = label == 'Song' ? _isSongButtonLoading : _isLyricsButtonLoading;
+  Widget buildFilePicker(String label, File? file, VoidCallback pickFile, {bool isRequired = true}) {
+    bool isLoading = label == 'Song'
+        ? _isSongButtonLoading
+        : label == 'Lyrics'
+        ? _isLyricsButtonLoading
+        : _isCoverButtonLoading;
     
     return GestureDetector(
       onTap: pickFile,
@@ -1158,7 +1252,6 @@ Widget _buildCheckboxnew(String text, bool value, Function(bool) onChanged) {
         height: 50,
         padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
         decoration: BoxDecoration(
-          //border: Border.all(color: Colors.black, width: 2.0),
           borderRadius: BorderRadius.circular(32.0),
           color: Color(0xFF2644D9),
         ),
@@ -1170,7 +1263,7 @@ Widget _buildCheckboxnew(String text, bool value, Function(bool) onChanged) {
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
-                  color: Colors.transparent,
+                  color: Colors.white,
                   strokeWidth: 2.0,
                 ),
               )
@@ -1180,9 +1273,9 @@ Widget _buildCheckboxnew(String text, bool value, Function(bool) onChanged) {
                   child: Text(
                     file == null ? 'Upload $label' : file.path.split('/').last,
                     style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold
+                        fontSize: 16.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1396,10 +1489,10 @@ class _RightPinInfoIconWithTooltipState extends State<RightPinInfoIconWithToolti
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 200),
     );
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
   }
 
@@ -1510,16 +1603,16 @@ class _RightPinInfoIconWithTooltipState extends State<RightPinInfoIconWithToolti
   }
 
   void _removeOverlay() {
-    if (!_isOverlayVisible) return;
+    if (!_isOverlayVisible || _disposed) return;
+
+    setState(() {
+      _isOverlayVisible = false;
+    });
 
     _controller.reverse().then((_) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-
-      if (!_disposed && mounted) {
-        setState(() {
-          _isOverlayVisible = false;
-        });
+      if (!_disposed) {
+        _overlayEntry?.remove();
+        _overlayEntry = null;
       }
     });
   }
