@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../profile_manager.dart';
 import 'api_endpoints.dart';
 
 /// Centralized API service for all HTTP requests in the Voiz app
@@ -538,39 +540,86 @@ class ApiService {
     }
   }
 
-  static void _logRequest(String method, String url, int statusCode) {
+  static void _logRequest(String method, String url, int statusCode, {Map<String, dynamic>? payload}) {
     print('[$method] $url - Status: $statusCode');
+    if (payload != null) {
+      print('🔍 Payload: ${jsonEncode(payload)}');
+    }
   }
 
   static void _logError(String method, String url, dynamic error) {
     print('[$method] $url - Error: $error');
   }
 
-  // 🔧 Follow State Cache Management Methods
+  // 🔧 Follow State Cache Management Methods - Persistent Storage
   
-  /// Updates the follow state cache for a user
-  static void updateFollowStateCache(String userId, bool isFollowing) {
-    _followStateCache[userId] = isFollowing;
-    _cacheTimestamp = DateTime.now();
-    print('🔍 Updated follow cache: $userId -> $isFollowing');
+  /// Updates the follow state cache for a user (persistent storage)
+  static Future<void> updateFollowStateCache(String userId, bool isFollowing) async {
+    try {
+      // Update in-memory cache
+      _followStateCache[userId] = isFollowing;
+      _cacheTimestamp = DateTime.now();
+      
+      // Update persistent storage
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserId = await _getCurrentUserId();
+      if (currentUserId != null) {
+        final key = 'follow_cache_${currentUserId}_$userId';
+        await prefs.setBool(key, isFollowing);
+        await prefs.setInt('follow_cache_timestamp', _cacheTimestamp.millisecondsSinceEpoch);
+        print('🔍 Updated persistent follow cache: $userId -> $isFollowing');
+      }
+    } catch (e) {
+      print('⚠️ Error updating follow cache: $e');
+    }
   }
   
   /// Gets the cached follow state for a user, returns null if not cached or expired
-  static bool? getCachedFollowState(String userId) {
-    final cacheAge = DateTime.now().difference(_cacheTimestamp);
-    
-    if (cacheAge > _cacheValidityDuration) {
-      // Cache expired, clear it
-      _followStateCache.clear();
-      print('⚠️ Follow cache expired, cleared');
+  static Future<bool?> getCachedFollowState(String userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserId = await _getCurrentUserId();
+      if (currentUserId == null) return null;
+      
+      final key = 'follow_cache_${currentUserId}_$userId';
+      final timestampKey = 'follow_cache_timestamp';
+      
+      // Check if we have persistent data
+      final cachedState = prefs.getBool(key);
+      final timestamp = prefs.getInt(timestampKey);
+      
+      if (cachedState != null && timestamp != null) {
+        final cacheTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+        final cacheAge = DateTime.now().difference(cacheTime);
+        
+        if (cacheAge <= _cacheValidityDuration) {
+          // Update in-memory cache
+          _followStateCache[userId] = cachedState;
+          _cacheTimestamp = cacheTime;
+          print('✅ Using persistent follow state: $userId -> $cachedState');
+          return cachedState;
+        } else {
+          // Cache expired, remove it
+          await prefs.remove(key);
+          print('⚠️ Persistent follow cache expired for: $userId');
+        }
+      }
+      
+      // Fallback to in-memory cache
+      final inMemoryState = _followStateCache[userId];
+      if (inMemoryState != null) {
+        final cacheAge = DateTime.now().difference(_cacheTimestamp);
+        if (cacheAge <= _cacheValidityDuration) {
+          print('✅ Using in-memory follow state: $userId -> $inMemoryState');
+          return inMemoryState;
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      print('⚠️ Error getting cached follow state: $e');
       return null;
     }
-    
-    final cachedState = _followStateCache[userId];
-    if (cachedState != null) {
-      print('✅ Using cached follow state: $userId -> $cachedState');
-    }
-    return cachedState;
   }
   
   /// Checks if the cache is valid (not expired)
@@ -579,11 +628,78 @@ class ApiService {
     return cacheAge <= _cacheValidityDuration;
   }
   
-  /// Clears the follow state cache
-  static void clearFollowStateCache() {
-    _followStateCache.clear();
-    _cacheTimestamp = DateTime.now();
-    print('🔍 Follow cache cleared');
+  /// Clears the follow state cache (both memory and persistent)
+  static Future<void> clearFollowStateCache() async {
+    try {
+      // Clear in-memory cache
+      _followStateCache.clear();
+      _cacheTimestamp = DateTime.now();
+      
+      // Clear persistent storage
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserId = await _getCurrentUserId();
+      if (currentUserId != null) {
+        final keys = prefs.getKeys().where((key) => key.startsWith('follow_cache_$currentUserId'));
+        for (final key in keys) {
+          await prefs.remove(key);
+        }
+        await prefs.remove('follow_cache_timestamp');
+      }
+      print('🔍 Follow cache cleared (memory + persistent)');
+    } catch (e) {
+      print('⚠️ Error clearing follow cache: $e');
+    }
+  }
+  
+  /// Helper method to get current user ID
+  static Future<String?> _getCurrentUserId() async {
+    try {
+      // Use ProfileManager as the primary source
+      final userId = ProfileManager().getUserId();
+      if (userId != null && userId.isNotEmpty) {
+        return userId;
+      }
+      
+      // Fallback to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('current_user_id');
+    } catch (e) {
+      print('⚠️ Error getting current user ID: $e');
+      return null;
+    }
+  }
+  
+  /// Sets the current user ID for cache management (call on sign in)
+  static Future<void> setCurrentUserId(String userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('current_user_id', userId);
+      print('🔍 Set current user ID for cache: $userId');
+    } catch (e) {
+      print('⚠️ Error setting current user ID: $e');
+    }
+  }
+  
+  /// Initializes persistent cache for signed-in user
+  static Future<void> initializeUserCache(String userId) async {
+    try {
+      await setCurrentUserId(userId);
+      print('🔍 Initialized user cache for: $userId');
+    } catch (e) {
+      print('⚠️ Error initializing user cache: $e');
+    }
+  }
+  
+  /// Clears user-specific cache on sign out
+  static Future<void> clearUserCache() async {
+    try {
+      await clearFollowStateCache();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('current_user_id');
+      print('🔍 Cleared user cache on sign out');
+    } catch (e) {
+      print('⚠️ Error clearing user cache: $e');
+    }
   }
 
   // Songs by genre and user methods

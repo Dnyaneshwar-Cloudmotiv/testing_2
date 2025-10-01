@@ -459,17 +459,18 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
       // Check if the response contains 'songDetails'
       if (jsonResponse.containsKey('songDetails')) {
         final List<dynamic> items = jsonResponse['songDetails'];
-
         // Extract song details
         List<Map<String, String>> songList = [];
 
         for (var songArray in items) {
           for (var song in songArray) {
+            final artist = (song['Stage_name']?['S']?.isNotEmpty == true)
+                ? song['Stage_name']['S']
+                : (song['FullName']?['S'] ?? 'Unknown Artist');
             songList.add({
               'title':
               song['songName']['S'] ?? 'Unknown Title', // Access song name
-              'artist': song['stage_name']['S'] ??
-                  'Unknown Artist', // Access stage name
+              'artist': artist, // Access stage name with fallback
               'duration': song['span']['S'] ?? '00:00',
               'song_id': song['song_id']['S'] ?? 'unknown', // Access duration
               'coverPage': song['coverPageUrl']['S'] ??

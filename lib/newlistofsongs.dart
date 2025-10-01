@@ -609,9 +609,12 @@ class _ListPageState extends State<ListPage> {
           if (albumName == null || album['albumName'] == albumName) {
             List<dynamic> songsInAlbum = album['songs'] ?? [];
             for (var song in songsInAlbum) {
+              final artist = (song['stage_name']?.isNotEmpty == true)
+                  ? song['stage_name']
+                  : song['FullName'] ?? 'Unknown Artist';
               allSongs.add({
                 'title': song['songName'] ?? 'Unknown Title',
-                'artist': song['stage_name'] ?? 'Unknown Artist',
+                'artist': artist,
                 'song_id': song['song_id'] ?? 'Unknown Song Id',
                 'coverPage': song['coverPageUrl'] ?? '',
                 'duration': song['span'] ?? '0:00',
@@ -709,9 +712,12 @@ class _ListPageState extends State<ListPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map<Map<String, String>>((song) {
+          final artist = (song['stage_name']?['S']?.isNotEmpty == true)
+              ? song['stage_name']['S']
+              : (song['FullName']?['S'] ?? 'Unknown');
           return {
             'title': song['songName']['S'] ?? 'Unknown',
-            'artist': song['stage_name']['S'] ?? 'Unknown',
+            'artist': artist,
             'song_id': song['song_id']['S'] ?? 'Unknown',
             'duration': song['span']['S'] ?? '0:00',
             'coverPage': song['coverPageUrl']['S'] ?? 'assets/logo.png',

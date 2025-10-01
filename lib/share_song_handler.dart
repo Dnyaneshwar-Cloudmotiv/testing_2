@@ -218,7 +218,9 @@ class ShareSongHandler {
             'fileName': data['fileName']?['S'] ?? 'Unknown File',
             'streamingUrl': data['songStreamUrl']?['S'] ?? '',
             'songName': data['songName']?['S'] ?? 'Unknown Song',
-            'stageName': data['stage_name']?['S'] ?? 'Unknown Stage Name',
+            'stageName': (data['stage_name']?['S']?.trim().isNotEmpty == true)
+                ? data['stage_name']['S']
+                : (data['FullName']?['S'] ?? data['user_FullName']?['S'] ?? 'Unknown Stage Name'),
             'span': data['span']?['S'] ?? '00:00',
             'coverPage': data['coverPageUrl']?['S'] ?? 'assets/placeholder.png',
             'genre': data['genre']?['S'] ?? 'Unknown Genre',
@@ -359,7 +361,9 @@ class ShareSongHandler {
             MaterialPageRoute(
               builder: (context) => MusicArtistPage(
                 artistId: artistId,
-                artistName: artistDetails['StageName'],
+                artistName: (artistDetails['StageName']?.toString().trim().isNotEmpty == true)
+                    ? artistDetails['StageName']
+                    : artistDetails['FullName'] ?? 'Unknown Artist',
                 followerCount: followerCount,
                 userId: email,
                 category: category,

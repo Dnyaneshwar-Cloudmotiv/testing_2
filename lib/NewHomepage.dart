@@ -713,7 +713,9 @@ class _NewHomePageState extends State<NewHomePage> with WidgetsBindingObserver {
                     builder: (context) =>
                         MusicArtistPage(
                           artistId: artistId,
-                          artistName: artistDetails['StageName'],
+                          artistName: (artistDetails['StageName']?.toString().trim().isNotEmpty == true)
+                              ? artistDetails['StageName']
+                              : artistDetails['FullName'] ?? 'Unknown Artist',
                           followerCount: followerCount,
                           userId: widget.email,
                           category: widget.category,

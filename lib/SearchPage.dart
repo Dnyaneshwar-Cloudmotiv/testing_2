@@ -372,8 +372,8 @@ void initState() {
       
       // 🔧 Check cache first, then fallback to API state
       bool isFollowing;
-      final cachedState = ApiService.getCachedFollowState(userId);
-      if (cachedState != null && ApiService.isCacheValid()) {
+      final cachedState = await ApiService.getCachedFollowState(userId);
+      if (cachedState != null) {
         // Use cached state (persistent across navigation)
         isFollowing = cachedState;
         print('🔍 Using cached follow state for $userId: $isFollowing');
@@ -491,7 +491,7 @@ Future<void> _followArtist(String followedId, String followingId, int index) asy
         print('✅ Follow API successful for artist: $followingId');
         
         // 🔧 Update cache immediately for persistence
-        ApiService.updateFollowStateCache(followingId, true);
+        await ApiService.updateFollowStateCache(followingId, true);
         
         // Update local state
         if (_mounted && mounted) {
@@ -547,7 +547,7 @@ Future<void> _followArtist(String followedId, String followingId, int index) asy
         print('✅ Unfollow API successful for artist: $unfollowingId');
         
         // 🔧 Update cache immediately for persistence
-        ApiService.updateFollowStateCache(unfollowingId, false);
+        await ApiService.updateFollowStateCache(unfollowingId, false);
         
         // Update local state
         if (_mounted && mounted) {
@@ -623,9 +623,12 @@ Future<List<Map<String, String>>> _fetchSongsForQuickKeyword(String keyword) asy
 
       // Convert the fetched data into a list of maps
       List<Map<String, String>> songs = songData.map<Map<String, String>>((song) {
+        final artist = (song['stage_name']?['S']?.isNotEmpty == true)
+            ? song['stage_name']['S']
+            : (song['FullName']?['S'] ?? 'Unknown');
         return {
           'title': song['songName']['S'] ?? 'Unknown',
-          'artist': song['stage_name']['S'] ?? 'Unknown',
+          'artist': artist,
           'song_id': song['song_id']['S'] ?? 'Unknown',
           'coverPage': song['coverPageUrl']['S'] ?? 'assets/logo.png',
           'duration': song['span']['S'] ?? '0:00',

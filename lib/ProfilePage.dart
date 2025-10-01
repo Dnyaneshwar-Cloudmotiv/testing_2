@@ -149,9 +149,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
           for (var songArray in songDetails) {
             for (var song in songArray) {
+              final artist = (song['stage_name']?['S']?.isNotEmpty == true)
+                  ? song['stage_name']['S']
+                  : (song['FullName']?['S'] ?? 'Unknown Artist');
               lovedTracks.add({
                 'title': song['songName']?['S'] ?? 'Unknown Title',
-                'artist': song['stage_name']?['S'] ?? 'Unknown Artist',
+                'artist': artist,
                 'coverPage': song['coverPageUrl']['S']?? 'assets/logo.png', // Default cover page
                 'song_id': song['song_id']['S'] ?? 'Unknown Song Id',
                 'duration': song['span']['S'] ?? '0:00',
@@ -210,9 +213,12 @@ String getInitials(String? fullName) {
           // Check if the songArray is not empty
           if (songArray.isNotEmpty) {
             for (var song in songArray) {
+              final artist = (song['stage_name']?['S']?.isNotEmpty == true)
+                  ? song['stage_name']['S']
+                  : (song['FullName']?['S'] ?? 'Unknown Artist');
               songs.add({
                 'title': song['songName']?['S'] ?? 'Unknown Title',
-                'artist': song['stage_name']?['S'] ?? 'Unknown Artist',
+                'artist': artist,
                 'workflowId': song['workflowId'] ?? 'Unknown WorkflowId',
                 'coverPage': song['coverPageUrl']['S']?? 'assets/logo.png', // Default cover page
                 'duration': '3:30', // Default duration
@@ -250,11 +256,14 @@ Future<List<Map<String, String>>> fetchHistoryTracks() async {
           if (songArray is List) {
             for (var song in songArray) {
               if (song is Map<String, dynamic>) {
+                final artist = (song['stage_name']?['S']?.isNotEmpty == true)
+                    ? song['stage_name']['S']
+                    : (song['FullName']?['S'] ?? 'Unknown Artist');
                 historyTracks.add({
                   'title': song['songName']?['S'] ?? 'Unknown Title',
                   'song_id': song['song_id']['S'] ?? 'Unknown Song Id', // Extract 'S' value
                   
-                  'artist': song['stage_name']?['S'] ?? 'Unknown Artist', // Extract 'S' value
+                  'artist': artist, // Extract 'S' value
                   'coverPage': song['coverPageUrl']['S']?? 'assets/logo.png', // Default cover page
                   'duration': song['span']?['S'] ?? '3:30',
                   'timestamp': song['current_date_time'] ?? '0:0' // Extract 'S' value

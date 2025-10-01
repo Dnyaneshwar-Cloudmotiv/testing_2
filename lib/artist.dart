@@ -76,11 +76,19 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
 
     print('Initial coverImageUrl: ${widget.coverImageUrl}');
 
+    // 🔧 Check cache first, then fallback to passed state
+    bool initialFollowState = false;
+    if (widget.artistId != ProfileManager().getUserId()) {
+      // Note: We'll update this in a post-frame callback since initState can't be async
+      initialFollowState = widget.isFollowing;
+      print('🔍 Using initial passed follow state for artist ${widget.artistId}: $initialFollowState');
+    }
+
     updatedArtist = Artist(
       stageName: widget.artistName,
       userId: widget.artistId,
       followerCount: widget.followerCount,
-      isFollowing: widget.artistId != ProfileManager().getUserId() ? widget.isFollowing : false,
+      isFollowing: initialFollowState,
       coverImageUrl: widget.coverImageUrl,
       profileImageUrl: widget.profileImageUrl,
     );
@@ -90,9 +98,10 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
     _fetchArtistLanguages();
     _fetchGenres();
     _fetchProfileDetails();
-    _fetchAlbumsForArtist(); // 
-
-
+    _fetchAlbumsForArtist();
+    
+    // 🔧 Check cache after initialization
+    _checkCachedFollowState();
   }
 
   void _setupConnectivityListener() {
@@ -163,6 +172,23 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
     }
   }
 
+  /// 🔧 Check cached follow state after initialization
+  Future<void> _checkCachedFollowState() async {
+    if (widget.artistId == ProfileManager().getUserId()) return;
+    
+    try {
+      final cachedState = await ApiService.getCachedFollowState(widget.artistId);
+      if (cachedState != null && _mounted && mounted) {
+        setState(() {
+          updatedArtist.isFollowing = cachedState;
+        });
+        print('🔍 Updated artist follow state from cache: ${widget.artistId} -> $cachedState');
+      }
+    } catch (e) {
+      print('⚠️ Error checking cached follow state: $e');
+    }
+  }
+
   void _preloadImages() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.coverImageUrl != null && mounted) {
@@ -222,16 +248,20 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
 
   void _shareArtistPage() {
     if (_isGeneratingLink) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Generating share link, please wait...')),
-      );
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Generating share link, please wait...')),
+        );
+      }
     } else if (_dynamicLink != null) {
       //Share.share('Hey, see who I found ! Listen to the amazing song by ${widget.artistName} on VOIZ ! Just download the app, listen and enjoy! $_dynamicLink');
       Share.share('Hey, see who I found ! Listen to the amazing song by ${widget.artistName} on VOIZ ! Just download the app, listen and enjoy! $_dynamicLink');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to generate shareable link')),
-      );
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to generate shareable link')),
+        );
+      }
     }
   }
 
@@ -248,10 +278,12 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
       // Mark for refresh on return
       shouldRefresh = true;
     } catch (e) {
-      print('Error toggling follow status: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update follow status. Please try again.'))
-      );
+      print('❌ Error toggling follow status: $e');
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update follow status. Please try again.'))
+        );
+      }
     }
   }
 
@@ -304,7 +336,10 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
       );
 
       if (response.statusCode == 200) {
-        print("Follow Successful");
+        print("Follow Successful for artist: ${widget.artistId}");
+
+        // 🔧 Update cache immediately for persistence across navigation
+        await ApiService.updateFollowStateCache(widget.artistId, true);
 
         // Fetch the updated count from API
         final followersResponse = await ApiService.getFollowersCount(widget.artistId);
@@ -313,20 +348,36 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
           final followersData = json.decode(followersResponse.body);
           final int updatedCount = followersData['count'] ?? 0;
 
-          setState(() {
-            updatedArtist.isFollowing = true;
-            updatedArtist.followerCount = updatedCount;
-          });
+          // Safe state update
+          if (_mounted && mounted) {
+            setState(() {
+              updatedArtist.isFollowing = true;
+              updatedArtist.followerCount = updatedCount;
+            });
+          }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Followed ${widget.artistName}')),
-          );
+          // Safe context usage for SnackBar
+          if (_mounted && mounted && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Followed ${widget.artistName}')),
+            );
+          }
         }
       } else {
         print('Failed to follow artist. Status code: ${response.statusCode}');
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to follow artist')),
+          );
+        }
       }
     } catch (e) {
       print('Error following artist: $e');
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error following artist')),
+        );
+      }
     }
   }
 
@@ -341,7 +392,10 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
       );
 
       if (response.statusCode == 200) {
-        print("Unfollow Successful");
+        print("✅ Unfollow Successful for artist: ${widget.artistId}");
+
+        // 🔧 Update cache immediately for persistence across navigation
+        await ApiService.updateFollowStateCache(widget.artistId, false);
 
         // Fetch the updated count from API
         final followersResponse = await ApiService.getFollowersCount(widget.artistId);
@@ -350,20 +404,36 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
           final followersData = json.decode(followersResponse.body);
           final int updatedCount = followersData['count'] ?? 0;
 
-          setState(() {
-            updatedArtist.isFollowing = false;
-            updatedArtist.followerCount = updatedCount;
-          });
+          // Safe state update
+          if (_mounted && mounted) {
+            setState(() {
+              updatedArtist.isFollowing = false;
+              updatedArtist.followerCount = updatedCount;
+            });
+          }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Unfollowed ${widget.artistName}')),
-          );
+          // Safe context usage for SnackBar
+          if (_mounted && mounted && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Unfollowed ${widget.artistName}')),
+            );
+          }
         }
       } else {
-        print('Failed to unfollow artist. Status code: ${response.statusCode}');
+        print('❌ Failed to unfollow artist. Status code: ${response.statusCode}');
+        if (_mounted && mounted && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to unfollow artist')),
+          );
+        }
       }
     } catch (e) {
-      print('Error unfollowing artist: $e');
+      print('❌ Error unfollowing artist: $e');
+      if (_mounted && mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error unfollowing artist')),
+        );
+      }
     }
   }
 
