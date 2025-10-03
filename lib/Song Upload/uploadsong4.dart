@@ -437,6 +437,7 @@ Future<void> _pickLyricsFile() async {
         "abhishekgothankar32@gmail.com",
         "ankitad@cloudmotivglobal.com",
         "mriganka@voiz.co.in"
+        "dgdhangar95@gmail.com"
       ];
 
       print('Using fallback emails: $fallbackEmails');
