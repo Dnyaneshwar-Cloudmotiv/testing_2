@@ -117,7 +117,7 @@ class ApiEndpoints {
   
   // Music Player APIs
   static const String albumGotoUrl = 'https://py529n10q0.$_baseAWSUrl/voiz/api/artist/album/goto';
-  static const String historyUrl = 'https://3ujjsgu42d.$_baseAWSUrl/history/save/history';
+  static const String historyUrl = 'https://ut0xjqh7f1.$_baseAWSUrl/history/save/history';
   static const String shareSongCountUrl = 'https://sxff4q77h9.$_baseAWSUrl/voizpost/save/shareSongCount';
   static const String songInfoUrl = 'https://py529n10q0.$_baseAWSUrl/voiz/song/info';
   static const String songCommentsUrl = 'https://rqu7liurug.$_baseAWSUrl/voiz/song/comments';

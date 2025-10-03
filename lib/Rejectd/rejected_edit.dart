@@ -67,7 +67,7 @@ class _EditSongDetailsPageState extends State<EditSongDetailsPage> {
 
   final List<String> _languages = [
     'English', 'Hindi', 'Assamese', 'Bengali', 'Gujarati', 'Kannada',
-    'Malayalam', 'Marathi', 'Odia', 'Punjabi', 'Tamil', 'Telugu',
+    'Malayalam', 'Marathi', 'Oriya', 'Punjabi', 'Tamil', 'Telugu',
     'Urdu', 'Pahari', 'Spanish', 'French', 'German'
   ];
 

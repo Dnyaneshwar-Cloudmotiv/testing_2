@@ -858,7 +858,9 @@ class _ListPageState extends State<ListPage> {
       }
       
       print('🔄 Fetching fresh data for language: $language');
-      final response = await ApiService.getSongsByLanguage(language);
+      // Map "Oriya" back to "Odia" for API compatibility
+      String apiLanguage = language == 'Oriya' ? 'Odia' : language;
+      final response = await ApiService.getSongsByLanguage(apiLanguage);
       if (ApiService.isSuccessResponse(response)) {
         List<dynamic> data = ApiService.parseJsonListResponse(response) ?? [];
         print('📥 Language API ($language) response: ${data.length} songs');

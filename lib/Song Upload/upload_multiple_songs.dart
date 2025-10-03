@@ -171,7 +171,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
     'Assamese', 'Bengali', 'Bhojpuri', 'English',
     'Gujarati', 'Hindi', 'Kannada', 'Kashmiri',
     'Konkani', 'Malayalam', 'Manipuri', 'Marathi',
-    'Odia', 'Pahari', 'Punjabi', 'Rajasthani',
+    'Oriya', 'Pahari', 'Punjabi', 'Rajasthani',
     'Sanskrit', 'Tamil', 'Telugu', 'Urdu'
   ];
 
