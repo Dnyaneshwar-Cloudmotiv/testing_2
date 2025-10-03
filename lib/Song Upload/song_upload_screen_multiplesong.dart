@@ -79,7 +79,7 @@ class _SongUploadScreenState extends State<SongUploadScreen_stes> {
   // Dropdown options
   final List<String> _languages = [
     'Assamese', 'Bengali', 'Bhojpuri', 'English', 'Gujarati', 'Hindi', 'Kannada',
-    'Kashmiri', 'Scene', 'Malayalam', 'Manipuri', 'Marathi', 'Odia', 'Punjabi',
+    'Kashmiri', 'Scene', 'Malayalam', 'Manipuri', 'Marathi', 'Oriya', 'Punjabi',
     'Rajasthani', 'Tamil', 'Telugu', 'Urdu'
   ];
 

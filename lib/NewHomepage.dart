@@ -2213,6 +2213,10 @@ class _ForYouContentState extends State<ForYouContent> {
         setState(() {
           languageList = initialLanguages.map<Map<String, dynamic>>((language) {
             String languageName = language['language'] ?? 'Unknown Language';
+            // Map "Odia" to "Oriya" for consistency with frontend
+            if (languageName == 'Odia') {
+              languageName = 'Oriya';
+            }
             return {
               'language': languageName,
               'count': language['count'] ?? 0,
@@ -2240,6 +2244,10 @@ class _ForYouContentState extends State<ForYouContent> {
       if (!mounted) return;
 
       String languageName = language['language'] ?? 'Unknown Language';
+      // Map "Odia" to "Oriya" for consistency with frontend
+      if (languageName == 'Odia') {
+        languageName = 'Oriya';
+      }
 
       // Check if the language already exists
       final languageExists = languageList.any((existingLanguage) =>
@@ -3632,7 +3640,9 @@ class LanguageCard extends StatelessWidget {
 
   Future<List<Map<String, String>>> fetchSongsByLanguage(String language) async {
     try {
-      final response = await ApiService.getSongsByLanguage(language);
+      // Map "Oriya" back to "Odia" for API compatibility
+      String apiLanguage = language == 'Oriya' ? 'Odia' : language;
+      final response = await ApiService.getSongsByLanguage(apiLanguage);
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');

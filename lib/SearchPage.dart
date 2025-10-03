@@ -616,7 +616,9 @@ Future<void> _followArtist(String followedId, String followingId, int index) asy
 
 Future<List<Map<String, String>>> _fetchSongsForQuickKeyword(String keyword) async {
   try {
-    final response = await ApiService.getSongsByLanguage(keyword);
+    // Map "Oriya" back to "Odia" for API compatibility
+    String apiKeyword = keyword == 'Oriya' ? 'Odia' : keyword;
+    final response = await ApiService.getSongsByLanguage(apiKeyword);
 
     if (ApiService.isSuccessResponse(response)) {
       List<dynamic> songData = json.decode(response.body);
