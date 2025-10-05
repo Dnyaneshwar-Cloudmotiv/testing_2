@@ -405,13 +405,8 @@ final HitsSearcher _artistSearcher = HitsSearcher(
 
   Future<bool> checkFollowStatus(String userId, String artistId) async {
     try {
-      final response = await ApiService.checkFollowStatus(userId, artistId);
-
-      if (ApiService.isSuccessResponse(response)) {
-        final data = json.decode(response.body);
-        return data['follows'] ?? false;
-      }
-      return false;
+      // ApiService.checkFollowStatus now returns bool directly
+      return await ApiService.checkFollowStatus(userId, artistId);
     } catch (e) {
       print('Error checking follow status: $e');
       return false;

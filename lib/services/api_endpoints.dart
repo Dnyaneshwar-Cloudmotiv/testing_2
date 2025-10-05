@@ -63,7 +63,7 @@ class ApiEndpoints {
   
   // Search and discovery endpoints
   static const String songsByLanguage = 'https://py529n10q0.execute-api.ap-south-1.amazonaws.com/voiz/api/language';
-  static const String checkFollowStatus = 'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/checkFollow';
+  static const String checkFollowStatus = 'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/checkFollowingStatus';
   static const String getCoverPage = 'https://54sg4hmfzc.execute-api.ap-south-1.amazonaws.com/artistprofile/user/getcoverpage';
   static const String followersCountUrl2 = 'https://dfiksrd6v8.execute-api.ap-south-1.amazonaws.com/follow/api/followers/count';
   static const String trendingSongsUrl = 'https://py529n10q0.$_baseAWSUrl/voiz/api/trending/songs';
