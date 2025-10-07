@@ -628,6 +628,7 @@ void _navigateToMusicArtistPage(Artist artist, int index) async {
   @override
   Widget build(BuildContext context) {
     Widget content = GradientScaffold(
+      resizeToAvoidBottomInset: true,
        appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
@@ -904,7 +905,8 @@ void _navigateToMusicArtistPage(Artist artist, int index) async {
             ),
                     SizedBox(height: 20),
 
-                SizedBox(height: 65,)
+                // Remove excessive bottom padding when keyboard is visible
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 65)
                   ],
                 ),
               ),

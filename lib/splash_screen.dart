@@ -429,7 +429,6 @@ class _SplashScreenState extends State<SplashScreen> {
     debugPrint("🌐 Sending device info to API");
     await ApiService.logDeviceInfo(deviceInfo);
   }
-
   /// Check user's login state and navigate accordingly
   Future<void> _checkLoginState() async {
     if (!_amplifyConfigured) return;
@@ -442,6 +441,16 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
+      // 🔧 FIX: Add session recovery mechanism with retry logic
+      if (await _attemptSessionRecovery()) {
+        debugPrint('✅ Session recovery successful');
+        final sessionData = await _authService.getSessionData();
+        if (sessionData != null) {
+          _navigateToHomePage(sessionData);
+          return;
+        }
+      }
+
       if (await _canInitializeFromAmplifyAuth()) {
         await _navigateWithAmplifySession();
         return;
@@ -450,6 +459,56 @@ class _SplashScreenState extends State<SplashScreen> {
       _handleNoValidAuthentication();
     } catch (e) {
       await _handleAuthenticationError(e);
+    }
+  }
+
+  /// 🔧 FIX: Session recovery mechanism for post-update scenarios
+  Future<bool> _attemptSessionRecovery() async {
+    try {
+      debugPrint('🔄 Attempting session recovery...');
+      
+      // Give Amplify Auth time to initialize after app update
+      await Future.delayed(const Duration(seconds: 1));
+      
+      // Try to restore session from secure storage with Amplify Auth retry
+      for (int attempt = 1; attempt <= 3; attempt++) {
+        try {
+          debugPrint('🔄 Session recovery attempt $attempt/3');
+          
+          // Check if Amplify Auth is ready
+          final authSession = await Amplify.Auth.fetchAuthSession();
+          if (authSession.isSignedIn) {
+            // Try to restore session data
+            final email = await _authService.getCurrentUserEmail();
+            if (email != null) {
+              final userDetails = await _authService.fetchUserDetails(email);
+              if (userDetails != null) {
+                await _authService.saveSession(
+                  userId: userDetails['userId']!,
+                  userEmail: email,
+                  userCategory: userDetails['userCategory']!,
+                  userFullName: userDetails['userFullName']!,
+                  loginMethod: 'session_recovery',
+                );
+                debugPrint('✅ Session recovery successful on attempt $attempt');
+                return true;
+              }
+            }
+          }
+        } catch (e) {
+          debugPrint('⚠️ Session recovery attempt $attempt failed: $e');
+        }
+        
+        if (attempt < 3) {
+          await Future.delayed(Duration(seconds: attempt * 2)); // Exponential backoff
+        }
+      }
+      
+      debugPrint('❌ Session recovery failed after 3 attempts');
+      return false;
+    } catch (e) {
+      debugPrint('❌ Session recovery error: $e');
+      return false;
     }
   }
 

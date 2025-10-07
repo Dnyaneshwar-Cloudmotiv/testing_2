@@ -33,43 +33,67 @@ class AuthService {
   /// Check if user has a valid session
   Future<bool> hasValidSession() async {
     try {
-      // First check Amplify Auth session
-      final authSession = await Amplify.Auth.fetchAuthSession();
-      if (!authSession.isSignedIn) {
-        await clearSession();
-        return false;
-      }
-
-      // Check if we have stored session data
-      final sessionValid = await _secureStorage.read(key: _keySessionValid);
-      if (sessionValid != 'true') {
-        return false;
-      }
-
-      // Check session timestamp
-      final timestampStr = await _secureStorage.read(key: _keySessionTimestamp);
-      if (timestampStr == null) {
-        return false;
-      }
-
-      final sessionTimestamp = DateTime.fromMillisecondsSinceEpoch(int.parse(timestampStr));
-      final now = DateTime.now();
+      debugPrint('🔐 Checking session validity...');
       
-      if (now.difference(sessionTimestamp) > _sessionValidityDuration) {
-        await clearSession();
-        return false;
-      }
-
-      // Verify we have all required user data
+      // 🔧 CRITICAL FIX: Check secure storage FIRST (survives app updates)
+      final sessionValid = await _secureStorage.read(key: _keySessionValid);
+      final timestampStr = await _secureStorage.read(key: _keySessionTimestamp);
       final userId = await _secureStorage.read(key: _keyUserId);
       final userEmail = await _secureStorage.read(key: _keyUserEmail);
       final userCategory = await _secureStorage.read(key: _keyUserCategory);
       final userFullName = await _secureStorage.read(key: _keyUserFullName);
 
-      return userId != null && userEmail != null && userCategory != null && userFullName != null;
+      // Check if we have valid secure storage session
+      if (sessionValid == 'true' && timestampStr != null && 
+          userId != null && userEmail != null && userCategory != null && userFullName != null) {
+        
+        // Verify timestamp is still valid
+        final sessionTimestamp = DateTime.fromMillisecondsSinceEpoch(int.parse(timestampStr));
+        final now = DateTime.now();
+        
+        if (now.difference(sessionTimestamp) <= _sessionValidityDuration) {
+          debugPrint('✅ Valid secure storage session found');
+          
+          // Try to verify Amplify Auth as secondary check (non-blocking)
+          try {
+            final authSession = await Amplify.Auth.fetchAuthSession();
+            if (authSession.isSignedIn) {
+              debugPrint('✅ Amplify Auth also valid');
+            } else {
+              debugPrint('⚠️ Amplify Auth invalid but secure storage valid - trusting secure storage');
+            }
+          } catch (e) {
+            debugPrint('⚠️ Amplify Auth check failed but secure storage valid: $e');
+          }
+          
+          return true;
+        } else {
+          debugPrint('❌ Secure storage session expired');
+          await clearSession();
+          return false;
+        }
+      }
+
+      debugPrint('🔍 No valid secure storage session, checking Amplify Auth...');
+      
+      // Fallback: Check Amplify Auth session (may fail after updates)
+      try {
+        final authSession = await Amplify.Auth.fetchAuthSession();
+        if (authSession.isSignedIn) {
+          debugPrint('✅ Amplify Auth session valid - will restore secure storage');
+          return true;
+        } else {
+          debugPrint('❌ No valid session found');
+          return false;
+        }
+      } catch (e) {
+        debugPrint('❌ Amplify Auth check failed: $e');
+        return false;
+      }
+      
     } catch (e) {
-      print('Error checking session validity: $e');
-      await clearSession();
+      debugPrint('❌ Error checking session validity: $e');
+      // Don't clear session on error - might be temporary
       return false;
     }
   }
@@ -83,6 +107,9 @@ class AuthService {
     required String loginMethod,
   }) async {
     try {
+      debugPrint('💾 Saving session data...');
+      debugPrint('🔍 User: $userEmail, Method: $loginMethod');
+      
       final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
       await Future.wait([
@@ -95,9 +122,10 @@ class AuthService {
         _secureStorage.write(key: _keySessionValid, value: 'true'),
       ]);
 
-      debugPrint('Session saved successfully for user: $userEmail');
+      debugPrint('✅ Session saved successfully for user: $userEmail');
+      debugPrint('📅 Session timestamp: ${DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp))}');
     } catch (e) {
-      debugPrint('Error saving session: $e');
+      debugPrint('❌ Error saving session: $e');
       throw Exception('Failed to save session data');
     }
   }
@@ -135,6 +163,8 @@ class AuthService {
   /// Clear all session data
   Future<void> clearSession() async {
     try {
+      debugPrint('🗑️ Clearing session data...');
+      
       await Future.wait([
         _secureStorage.delete(key: _keyUserId),
         _secureStorage.delete(key: _keyUserEmail),
@@ -153,13 +183,15 @@ class AuthService {
         key.contains('_userFullName')
       ).toList();
       
+      debugPrint('🔍 Clearing ${keys.length} SharedPreferences keys');
       for (final key in keys) {
         await prefs.remove(key);
+        debugPrint('🗑️ Removed key: $key');
       }
 
-      debugPrint('Session cleared successfully');
+      debugPrint('✅ Session cleared successfully');
     } catch (e) {
-      debugPrint('Error clearing session: $e');
+      debugPrint('❌ Error clearing session: $e');
     }
   }
 
@@ -186,16 +218,16 @@ class AuthService {
       
       if (authSession.isSignedIn) {
         // Session is valid, Amplify handles token refresh automatically
-        debugPrint('Amplify Auth session is valid');
+        debugPrint('✅ Amplify Auth session is valid');
         return true;
       } else {
-        debugPrint('Amplify Auth session is not signed in');
-        await clearSession();
+        debugPrint('⚠️ Amplify Auth session is not signed in');
+        // 🔧 FIX: Don't clear secure storage - might be temporary Amplify issue
         return false;
       }
     } catch (e) {
-      debugPrint('Error checking Amplify session: $e');
-      await clearSession();
+      debugPrint('❌ Error checking Amplify session: $e');
+      // 🔧 FIX: Don't clear secure storage on Amplify errors
       return false;
     }
   }

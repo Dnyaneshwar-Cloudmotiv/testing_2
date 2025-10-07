@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'api_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -143,6 +144,14 @@ Future<void> _performLogoutInBackground() async {
       return;
     }
 
+    // 🔧 FIX: Check if this is an app update scenario
+    final isAppUpdate = await _isAppUpdateScenario(prefs);
+    if (isAppUpdate) {
+      debugPrint('🚫 App update detected - preserving user session');
+      await prefs.remove('pending_logout_user_id'); // Clean up the task
+      return;
+    }
+
     // Clean up audio resources
     try {
       await AudioService().fullCleanup();
@@ -241,5 +250,44 @@ Future<void> _performAccountDeletionInBackground() async {
     debugPrint('Background account deletion process completed successfully');
   } catch (e) {
     debugPrint('Error during background account deletion: $e');
+  }
+}
+
+/// 🔧 FIX: Helper function to detect app update scenarios
+Future<bool> _isAppUpdateScenario(SharedPreferences prefs) async {
+  try {
+    // Get current app version
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+    final currentBuildNumber = packageInfo.buildNumber;
+    
+    // Get stored version from last app run
+    final storedVersion = prefs.getString('last_app_version');
+    final storedBuildNumber = prefs.getString('last_build_number');
+    
+    // Store current version for next time
+    await prefs.setString('last_app_version', currentVersion);
+    await prefs.setString('last_build_number', currentBuildNumber);
+    
+    // If no stored version, this is first run (not an update)
+    if (storedVersion == null || storedBuildNumber == null) {
+      debugPrint('🔍 First app run detected');
+      return false;
+    }
+    
+    // Check if version or build number changed
+    final versionChanged = storedVersion != currentVersion;
+    final buildChanged = storedBuildNumber != currentBuildNumber;
+    
+    if (versionChanged || buildChanged) {
+      debugPrint('📱 App update detected: $storedVersion→$currentVersion, build: $storedBuildNumber→$currentBuildNumber');
+      return true;
+    }
+    
+    debugPrint('✅ No app update detected');
+    return false;
+  } catch (e) {
+    debugPrint('⚠️ Error detecting app update: $e');
+    return false; // Assume no update on error
   }
 }

@@ -106,7 +106,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   late Debouncer _tapDebouncer;
-
+  bool _isSearchFocused = false;
 
 final HitsSearcher _artistSearcher = HitsSearcher(
     applicationID: 'GBYVEIU9LF',
@@ -135,6 +135,14 @@ final HitsSearcher _artistSearcher = HitsSearcher(
   void initState() {
     super.initState();
     _searchController.addListener(_onTextInputSearch);
+    
+    // Add focus listeners to track search field focus state
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchFocused = _searchFocusNode.hasFocus;
+      });
+    });
+    
     _artistSearcher.responses.listen((response) {
       setState(() {
         _artistResults = response.hits.map((hit) => Artist.fromJson(hit)).toList();
@@ -612,24 +620,23 @@ final HitsSearcher _artistSearcher = HitsSearcher(
             ),
           ),
 
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.black, // Optional background color for NowPlayingTile
-              width: double.infinity, // Ensures full width
-              child: NowPlayingTile(
-                email: widget.email,
-                userFullName: widget.userfullname,
-                userCategory: widget.userCategory,
-              ),
-            ),
-          ),
         ],
       ),
     );
 
     return PageWithBottomNav(
       child: content,
+      nowPlayingTile: !_isSearchFocused ? ValueListenableBuilder<bool>(
+        valueListenable: isNowPlayingTileVisible,
+        builder: (context, isVisible, _) {
+          if (!isVisible) return const SizedBox();
+          return NowPlayingTile(
+            email: widget.email,
+            userFullName: widget.userfullname,
+            userCategory: widget.userCategory,
+          );
+        },
+      ) : null,
       email: widget.email,
       fullName: widget.userfullname,
       category: widget.userCategory,

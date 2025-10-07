@@ -136,7 +136,6 @@ Future<void> _initializeInBackground() async {
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await autoplayNotifier.loadAutoplayState();
-
   await BackgroundTaskService().initialize();
   await FirebaseMessaging.instance.requestPermission();
 }
@@ -147,6 +146,7 @@ class GradientScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final FloatingActionButton? floatingActionButton;
   final bool extendBody;
+  final bool? resizeToAvoidBottomInset;
 
   const GradientScaffold({
     Key? key,
@@ -155,6 +155,7 @@ class GradientScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.floatingActionButton,
     this.extendBody = false,
+    this.resizeToAvoidBottomInset,
   }) : super(key: key);
 
   @override
@@ -164,6 +165,7 @@ class GradientScaffold extends StatelessWidget {
       bottomNavigationBar: bottomNavigationBar,
       floatingActionButton: floatingActionButton,
       extendBody: extendBody,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       backgroundColor: Color(0xFF211F20),
       body: Stack(
         children: [

@@ -357,8 +357,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> with SingleTi
 // Refactored _logout function
 // _logout function now only handles the logout logic without any navigation or UI interaction
   // Sign out method only handles the logout logic without UI interaction
-  Future<void> _logout() async {
+  Future<void> _logout({bool preserveSession = false}) async {
     try {
+      print('🔐 Starting logout process (preserveSession: $preserveSession)');
+      
       // First properly dispose the audio player and its resources
       try {
         await AudioService().fullCleanup();
@@ -388,22 +390,57 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> with SingleTi
       ProfileManager().clearCurrentlyPlayingSong();
       print('Profile manager reset');
 
-      // Register the background task to ensure completion even if app is closed
-      await BackgroundTaskService().registerLogoutTask();
-      print('Background logout task registered');
+      // 🔧 FIX: Only register background task if not preserving session
+      if (!preserveSession) {
+        await BackgroundTaskService().registerLogoutTask();
+        print('Background logout task registered');
+      } else {
+        print('🚫 Skipping background logout task - preserving session');
+      }
       
       // Continue with immediate logout operations
       try {
-        // Clear all local storage
-        await prefs.clear();
-        print('SharedPreferences cleared');
+        if (preserveSession) {
+          // 🔧 FIX: Selective clearing - preserve authentication data
+          print('🔐 Preserving session data during logout');
+          
+          // Clear only non-essential data
+          final keysToPreserve = [
+            'user_id', 'user_email', 'user_category', 'user_full_name',
+            'login_method', 'session_timestamp', 'session_valid',
+            'last_app_version', 'last_build_number'
+          ];
+          
+          final allKeys = prefs.getKeys().toList();
+          for (final key in allKeys) {
+            bool shouldPreserve = false;
+            for (final preserveKey in keysToPreserve) {
+              if (key.contains(preserveKey)) {
+                shouldPreserve = true;
+                break;
+              }
+            }
+            if (!shouldPreserve) {
+              await prefs.remove(key);
+            }
+          }
+          print('✅ Selective data clearing completed');
+        } else {
+          // Full logout - clear everything
+          await prefs.clear();
+          print('SharedPreferences cleared completely');
+        }
 
         // Add a delay to ensure resources are released
         await Future.delayed(Duration(milliseconds: 500));
 
-        // Sign out from Amplify
-        await Amplify.Auth.signOut();
-        print('Signed out from Amplify');
+        // 🔧 FIX: Only sign out from Amplify if not preserving session
+        if (!preserveSession) {
+          await Amplify.Auth.signOut();
+          print('Signed out from Amplify');
+        } else {
+          print('🚫 Preserving Amplify Auth session');
+        }
 
         await loginMethodNotifier.clearLoginMethod();
         print('Login method cleared');
@@ -411,7 +448,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> with SingleTi
         print('Logout completed successfully');
       } catch (e) {
         print('Error during immediate logout operations: $e');
-        print('Continuing with background task to ensure completion');
+        if (!preserveSession) {
+          print('Continuing with background task to ensure completion');
+        }
       }
     } catch (e) {
       print('Error during logout: $e');

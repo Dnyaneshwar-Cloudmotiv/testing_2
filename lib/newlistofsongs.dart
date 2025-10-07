@@ -434,19 +434,37 @@ class _ListPageState extends State<ListPage> {
 
     try {
       final double itemHeight = 76.0; // Consistent item height
+      final double albumsSectionHeight = 180.0; // Albums section height (150 + padding)
       final double statusBarHeight = MediaQuery
           .of(context)
           .padding
           .top;
-      final double topSectionHeight = 250.0; // Banner + title section
+      // Reduced topSectionHeight to allow albums section to scroll up (red line position)
+      final double topSectionHeight = 120.0; // Only banner section (artist name area)
       final double viewportHeight = MediaQuery
           .of(context)
           .size
           .height - topSectionHeight - statusBarHeight;
 
-      // Calculate target offset to ensure the entire song item is visible
-      double targetOffset = (index * itemHeight) - (viewportHeight / 2) +
-          (itemHeight * 1.5);
+      // Calculate the actual list index for this song (accounting for albums section)
+      int listIndex = index;
+      if (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) {
+        listIndex += 1; // Albums section takes index 0
+      }
+      
+      // Account for banner ad position
+      int bannerAdPosition = (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) ? 3 : 2;
+      if (listIndex >= bannerAdPosition && songs.length > 2) {
+        listIndex += 1; // Banner ad shifts song positions
+      }
+
+      // Calculate target offset - include albums section height if present
+      double baseOffset = 0;
+      if (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) {
+        baseOffset = albumsSectionHeight; // Albums section height
+      }
+      
+      double targetOffset = baseOffset + (index * itemHeight) - (viewportHeight / 2) + (itemHeight * 1.5);
 
       // Ensure offset is within scrollable range with some buffer
       targetOffset = math.max(0, math.min(targetOffset,
@@ -462,7 +480,7 @@ class _ListPageState extends State<ListPage> {
         curve: Curves.easeInOutQuart,
       );
       print(
-          'Scrolling to index $index, offset: $targetOffset, viewport height: $viewportHeight');
+          'Scrolling to song index $index (list index $listIndex), offset: $targetOffset, viewport height: $viewportHeight (red line position with scrollable albums)');
     } catch (e) {
       print('Detailed scroll error: $e');
     }
@@ -1927,114 +1945,12 @@ class _ListPageState extends State<ListPage> {
             ),
           ),
 
-          // NEW: Conditionally display Artist Albums horizontally
-          if (widget.isArtist && _artistAlbums.isNotEmpty && widget.album ==
-              null) // Only show if it's an artist page, has albums, and not already showing a specific album's songs
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  child: Text(
-                    'Albums',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 150, // Height for the horizontal album list
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    itemCount: _artistAlbums.length,
-                    itemBuilder: (context, index) {
-                      final album = _artistAlbums[index];
-                      return GestureDetector(
-                        onTap: () {
-                          // Navigate to a new ListPage instance showing songs for this specific album
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ListPage(
-                                    genreTitle: album['albumName']!,
-                                    // Title will be album name
-                                    bannerImage: album['coverPage']!,
-                                    // Banner will be album cover
-                                    email: widget.email,
-                                    Category: widget.Category,
-                                    // Keep original category or adjust if needed
-                                    fullname: widget.fullname,
-                                    isArtistAlbum: true,
-                                    // Indicate that this page is for a specific artist's album
-                                    artistId: album['artistId'],
-                                    // Pass the artist ID
-                                    album: album['albumName'],
-                                    // Pass the specific album name to filter songs
-                                    navigationIndex: widget
-                                        .navigationIndex, // Pass along nav index
-                                  ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 110, // Width for each album item
-                          margin: EdgeInsets.only(right: 12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: CachedNetworkImage(
-                                  imageUrl: album['coverPage'] ?? '',
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Center(
-                                      child: CircularProgressIndicator()),
-                                  errorWidget: (context, url, error) =>
-                                      Image.asset(
-                                        'assets/mic.jpg',
-                                        // Make sure this file exists in assets
-                                        width: 100,
-                                        height: 100,
-                                        fit: BoxFit.cover,
-                                      ),
-                                ),
-                              ),
-                              SizedBox(height: 8.0),
-                              Text(
-                                album['albumName']!,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Poppins',
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(height: 10), // Space between albums and song list
-              ],
-            ),
           // Songs List - No padding at top
           Expanded(
             child: ClipRect(
               child: isLoading
                   ? buildShimmer()
-                  : songs.isEmpty
+                  : songs.isEmpty && _artistAlbums.isEmpty
                   ? Center(
                 child: Text(
                   'No songs available.',
@@ -2047,11 +1963,18 @@ class _ListPageState extends State<ListPage> {
                     controller: _scrollController,
                     // Add sufficient top padding to ensure the first item's text is fully visible
                     padding: EdgeInsets.only(top: 12.0),
-                    itemCount: songs.length + (songs.length > 2 ? 1 : 0),
-                    // Add 1 for banner ad if there are more than 2 songs
+                    itemCount: _getListItemCount(),
                     itemBuilder: (context, index) {
-                      // Show banner ad after the first 2 songs
-                      if (index == 2 && songs.length > 2) {
+                      // Show albums section as first item if it's an artist page with albums
+                      if (index == 0 && widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) {
+                        return _buildAlbumsSection();
+                      }
+                      
+                      // Adjust index for songs when albums section is present
+                      int songIndex = _getSongIndex(index);
+                      
+                      // Show banner ad after the first 2 songs (accounting for albums section)
+                      if (_shouldShowBannerAd(index, songIndex)) {
                         // Determine if we're in debug mode
                         bool isInDebugMode = false;
                         assert(isInDebugMode =
@@ -2075,8 +1998,7 @@ class _ListPageState extends State<ListPage> {
                         );
                       }
 
-                      // Adjust index for actual song items that come after the ad
-                      final songIndex = index > 2 ? index - 1 : index;
+                      // Get the actual song for this index
                       final song = songs[songIndex];
                       return _buildSongItem(
                         context,
@@ -2529,5 +2451,138 @@ class _ListPageState extends State<ListPage> {
         ),
       );
     }
+  }
+
+  // Helper methods for the new scrollable albums implementation
+  int _getListItemCount() {
+    int baseCount = songs.length;
+    
+    // Add 1 for albums section if it should be shown
+    if (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) {
+      baseCount += 1;
+    }
+    
+    // Add 1 for banner ad if there are more than 2 songs
+    if (songs.length > 2) {
+      baseCount += 1;
+    }
+    
+    return baseCount;
+  }
+
+  int _getSongIndex(int listIndex) {
+    int songIndex = listIndex;
+    
+    // Subtract 1 if albums section is present (it takes index 0)
+    if (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) {
+      songIndex -= 1;
+    }
+    
+    // Adjust for banner ad position
+    int bannerAdPosition = (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) ? 3 : 2;
+    if (listIndex > bannerAdPosition && songs.length > 2) {
+      songIndex -= 1;
+    }
+    
+    return songIndex;
+  }
+
+  bool _shouldShowBannerAd(int listIndex, int songIndex) {
+    if (songs.length <= 2) return false;
+    
+    // Banner ad position: after 2 songs, accounting for albums section
+    int bannerAdPosition = (widget.isArtist && _artistAlbums.isNotEmpty && widget.album == null) ? 3 : 2;
+    return listIndex == bannerAdPosition;
+  }
+
+  Widget _buildAlbumsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Text(
+            'Albums',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ),
+        Container(
+          height: 150, // Height for the horizontal album list
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: _artistAlbums.length,
+            itemBuilder: (context, index) {
+              final album = _artistAlbums[index];
+              return GestureDetector(
+                onTap: () {
+                  // Navigate to a new ListPage instance showing songs for this specific album
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ListPage(
+                        genreTitle: album['albumName']!,
+                        bannerImage: album['coverPage']!,
+                        email: widget.email,
+                        Category: widget.Category,
+                        fullname: widget.fullname,
+                        isArtistAlbum: true,
+                        artistId: album['artistId'],
+                        album: album['albumName'],
+                        navigationIndex: widget.navigationIndex,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 110, // Width for each album item
+                  margin: EdgeInsets.only(right: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: CachedNetworkImage(
+                          imageUrl: album['coverPage'] ?? '',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => Image.asset(
+                            'assets/mic.jpg',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        album['albumName']!,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Poppins',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 10), // Space between albums and song list
+      ],
+    );
   }
 }
