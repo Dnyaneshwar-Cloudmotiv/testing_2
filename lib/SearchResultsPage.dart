@@ -40,7 +40,10 @@ class Artist {
   factory Artist.fromJson(Map<String, dynamic> json) {
     return Artist(
       objectID: json['objectID'] ?? '',
-      stageName: json['stageName'] ?? '',
+     // stageName: json['stageName'] ?? '',
+      stageName: (json['stageName']?.toString().trim().isNotEmpty == true)
+    ? json['stageName']
+    : (json['fullName']?.toString().trim() ?? 'Unknown Artist'),
       fullName: json['fullName'] ?? '',
       profilePhotoUrl: json['profilePhotoUrl'] ?? '',
       category: json['category'] ?? '',
@@ -79,7 +82,10 @@ class Song {
       coverPageUrl: json['coverPageUrl'] ?? 'assets/mic.jpg',
       songStreamUrl: json['songStreamUrl'] ?? '',
       span: json['span'] ?? '0:00',
-      stageName: json['stage_name'] ?? 'Unknown Artist',
+    //  stageName: json['stage_name'] ?? 'Unknown Artist',
+      stageName: (json['stage_name']?.toString().trim().isNotEmpty == true) 
+    ? json['stage_name'] 
+    : (json['FullName']?.toString().trim() ?? 'Unknown Artist'),
       fullName: json['FullName'] ?? 'Unknown Artist',
     );
   }
@@ -374,7 +380,7 @@ final HitsSearcher _artistSearcher = HitsSearcher(
           'genre': data['genre']?['S'] ?? 'Unknown Genre',
           'songName': data['songName']?['S'] ?? 'Unknown Song',
           'stage_name': data['stage_name']?['S'] ?? 'Unknown Artist',
-          'languages': data['languages']?['S'] ?? 'Unknown Language',
+          'languages': (data['languages']?['S'] ?? 'Unknown Language') == 'Odia' ? 'Oriya' : (data['languages']?['S'] ?? 'Unknown Language'),
           'songStreamUrl': data['songStreamUrl']?['S'] ?? '',
           'coverPageUrl': data['coverPageUrl']?['S'] ?? '',
           'span': data['span']?['S'] ?? '0:00',
@@ -1053,7 +1059,7 @@ final HitsSearcher _artistSearcher = HitsSearcher(
                                 'source': sourceName,
                                 'genre': sourceName,
                                 'languages': sourceDetails != null && sourceDetails.containsKey('languages')
-                                    ? sourceDetails['languages'].toString()
+                                    ? (sourceDetails['languages'].toString() == 'Odia' ? 'Oriya' : sourceDetails['languages'].toString())
                                     : 'Unknown Language',
                               };
 

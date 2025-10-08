@@ -188,7 +188,7 @@ class _ShareSongScreenState extends State<ShareSongScreen> {
       }
 
       // Get language/genre info
-      final String language = songDetails['languages'] ?? 'Unknown Language';
+      final String language = (songDetails['languages'] ?? 'Unknown Language') == 'Odia' ? 'Oriya' : (songDetails['languages'] ?? 'Unknown Language');
       final String genre = songDetails['genre'] ?? 'Unknown Genre';
 
       // Stop current audio if playing
@@ -504,7 +504,7 @@ class _ShareSongScreenState extends State<ShareSongScreen> {
             'coverPage': data['coverPageUrl']?['S'] ?? 'assets/placeholder.png',
             'songUrl': data['songUrl']?['S'] ?? '',
             'genre': data['genre']?['S'] ?? 'Unknown Genre',
-            'languages': data['languages']?['S'] ?? 'Unknown Language',
+            'languages': (data['languages']?['S'] ?? 'Unknown Language') == 'Odia' ? 'Oriya' : (data['languages']?['S'] ?? 'Unknown Language'),
             'mood': data['mood']?['S'] ?? 'Unknown Mood',
             'playCount': data['playCount']?['S'] ?? '0',
             'approved': data['approved']?['BOOL'] ?? false,

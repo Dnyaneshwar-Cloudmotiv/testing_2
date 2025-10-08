@@ -89,6 +89,17 @@ class ListPage extends StatefulWidget {
     this.albumId,
   });
 
+  // Static method to clear language cache after song upload
+  static void clearLanguageCache([String? specificLanguage]) {
+    if (specificLanguage != null) {
+      _ListPageState._languageCache.remove(specificLanguage);
+      print('🗑️ Cleared cache for language: $specificLanguage');
+    } else {
+      _ListPageState._languageCache.clear();
+      print('🗑️ Cleared all language cache');
+    }
+  }
+
   @override
   _ListPageState createState() => _ListPageState();
 }
@@ -179,9 +190,10 @@ class _ListPageState extends State<ListPage> {
     _mounted = true;
     _connectivityService = ConnectivityService();
     _setupConnectivityListener();
-    fetchSongs(); // This will now also fetch albums if it's an artist page
     _setupAudioPlayerListeners();
     _scrollController.addListener(_onScrollChanged);
+    
+    // Single call to fetchSongs with proper callback handling
     fetchSongs().then((_) {
       // Only perform highlight operations after songs are loaded
       _initializeHighlightAfterFetch();
@@ -189,8 +201,6 @@ class _ListPageState extends State<ListPage> {
 
     ProfileManager.currentlyPlayingSongIdNotifier.addListener(
         _updateCurrentSongById);
-    _setupAudioPlayerListeners();
-    _scrollController.addListener(_onScrollChanged);
 
     if (widget.isArtistByLanguage ||
         (widget.isGenre && widget.artistId != null)) {
@@ -505,7 +515,7 @@ class _ListPageState extends State<ListPage> {
             'coverPage': song['coverPageUrl'] ?? 'assets/logo.png',
             'duration': song['span'] ?? '0:00',
             'streamingUrl': song['songStreamUrl'] ?? '',
-            'languages': song['languages'] ?? '',
+            'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
             'genre': song['genre'] ?? '',
             'source': song['genre'] ?? '',
             'album': song['albumName'] ?? 'Unknown Album',
@@ -549,7 +559,7 @@ class _ListPageState extends State<ListPage> {
               'coverPage': song['coverPageUrl'] ?? '',
               'duration': song['span'] ?? '0:00',
               'streamingUrl': song['songStreamUrl'] ?? '',
-              'languages': song['languages'] ?? '',
+              'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
               'genre': song['genre'] ?? '',
               'album': song['albumName']?.isEmpty == true ? 'Single' : song['albumName'] ?? 'Single',
               'albumId': song['album_id']?.toString() ?? '', // Ensure correct key
@@ -637,7 +647,7 @@ class _ListPageState extends State<ListPage> {
                 'coverPage': song['coverPageUrl'] ?? '',
                 'duration': song['span'] ?? '0:00',
                 'streamingUrl': song['songStreamUrl'] ?? '',
-                'languages': song['languages'] ?? '',
+                'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
                 'genre': song['genre'] ?? '',
                 'album': album['albumName'] ?? 'Unknown Album',
                 'albumId': album['album_id'] ?? '', // Add albumId
@@ -775,7 +785,7 @@ class _ListPageState extends State<ListPage> {
                   'duration': song['span'] ?? '3:30',
                   'timestamp': song['updatedTimestamp'] ?? '0:0',
                   'streamingUrl': song['songStreamUrl'] ?? '',
-                  'languages': song['languages'] ?? '',
+                  'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
                   'genre': song['genre'] ?? '',
                   'album': song['albumName'] ?? 'Unknown Album',
                   'albumId': song['album_id'] ?? '', // Add albumId
@@ -817,7 +827,7 @@ class _ListPageState extends State<ListPage> {
               'song_id': song['song_id'] ?? 'Unknown Song Id',
               'duration': song['span'] ?? '0:00',
               'streamingUrl': song['songStreamUrl'] ?? '',
-              'languages': song['languages'] ?? '',
+              'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
               'genre': song['genre'] ?? '',
               'timestamp': song['updatedTimestamp'] ?? DateTime.now().toString(),
               'album': song['albumName'] ?? 'Unknown Album',
@@ -897,7 +907,7 @@ class _ListPageState extends State<ListPage> {
               'coverPage': song['coverPageUrl'] ?? 'assets/logo.png',
               'duration': song['span'] ?? '0:00',
               'streamingUrl': song['songStreamUrl'] ?? '',
-              'languages': song['languages'] ?? '',
+              'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
               'genre': song['genre'] ?? '',
               'source': song['languages'] ?? '',
               'album': albumName,
@@ -927,8 +937,22 @@ class _ListPageState extends State<ListPage> {
     
     print('🚀 Starting progressive loading: ${allSongs.length} total songs');
     
+    // Deduplicate songs by song_id to prevent duplicates
+    final Set<String> seenSongIds = {};
+    final List<Map<String, String>> uniqueSongs = [];
+    
+    for (var song in allSongs) {
+      final songId = song['song_id'] ?? '';
+      if (songId.isNotEmpty && !seenSongIds.contains(songId)) {
+        seenSongIds.add(songId);
+        uniqueSongs.add(song);
+      }
+    }
+    
+    print('🔍 Deduplication: ${allSongs.length} → ${uniqueSongs.length} unique songs');
+    
     // Load initial 6 songs for instant display
-    final initialBatch = allSongs.take(initialLoadCount).toList();
+    final initialBatch = uniqueSongs.take(initialLoadCount).toList();
     if (mounted) {
       setState(() {
         songs = initialBatch;
@@ -939,9 +963,9 @@ class _ListPageState extends State<ListPage> {
     }
     
     // Load remaining songs in background if there are more
-    if (allSongs.length > initialLoadCount) {
-      print('🔄 Loading remaining ${allSongs.length - initialLoadCount} songs in background');
-      _loadRemainingSongsInBackground(allSongs.skip(initialLoadCount).toList());
+    if (uniqueSongs.length > initialLoadCount) {
+      print('🔄 Loading remaining ${uniqueSongs.length - initialLoadCount} songs in background');
+      _loadRemainingSongsInBackground(uniqueSongs.skip(initialLoadCount).toList());
     }
   }
   
@@ -956,11 +980,20 @@ class _ListPageState extends State<ListPage> {
       
       if (!mounted) return;
       
-      setState(() {
-        songs.addAll(batch);
-      });
+      // Additional safety: Check for duplicates before adding
+      final Set<String> existingSongIds = songs.map((song) => song['song_id'] ?? '').toSet();
+      final List<Map<String, String>> newSongs = batch.where((song) {
+        final songId = song['song_id'] ?? '';
+        return songId.isNotEmpty && !existingSongIds.contains(songId);
+      }).toList();
       
-      print('📥 Added ${batch.length} more songs (${songs.length}/${initialLoadCount + remainingSongs.length} total)');
+      if (newSongs.isNotEmpty) {
+        setState(() {
+          songs.addAll(newSongs);
+        });
+        
+        print('📥 Added ${newSongs.length} more songs (${songs.length} total) - ${batch.length - newSongs.length} duplicates filtered');
+      }
       
       // Small delay to prevent UI blocking
       await Future.delayed(Duration(milliseconds: 150));
@@ -985,7 +1018,7 @@ class _ListPageState extends State<ListPage> {
             'coverPage': song['coverPageUrl'] ?? 'assets/mic.jpg',
             'duration': song['span'] ?? '0:00',
             'streamingUrl': song['songStreamUrl'] ?? '',
-            'languages': song['languages'] ?? '',
+            'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
             'genre': song['genre'] ?? '',
             'albumName': song['albumName'] ?? 'Unknown Album',
             'albumId': song['album_id']?.toString() ?? '',
@@ -1013,7 +1046,7 @@ class _ListPageState extends State<ListPage> {
             'coverPage': song['coverPageUrl'] ?? 'assets/mic.jpg',
             'duration': song['span'] ?? '0:00',
             'streamingUrl': song['songStreamUrl'] ?? '',
-            'languages': song['languages'] ?? '',
+            'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
             'genre': song['genre'] ?? '',
             'albumName': song['albumName'] ?? 'Unknown Album',
             'albumId': song['album_id']?.toString() ?? '',
@@ -1053,7 +1086,7 @@ class _ListPageState extends State<ListPage> {
               'coverPage': song['coverPageUrl'] ?? 'assets/mic.jpg',
               'duration': song['span'] ?? '0:00',
               'streamingUrl': song['songStreamUrl'] ?? '',
-              'languages': song['languages'] ?? '',
+              'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
               'genre': song['genre'] ?? '',
               'albumName': targetAlbum['albumName'] ?? 'Unknown Album',
               'albumId': targetAlbum['album_id']?.toString() ?? '',
@@ -1089,7 +1122,7 @@ class _ListPageState extends State<ListPage> {
             'coverPage': song['coverPageUrl'] ?? 'assets/logo.png',
             'duration': song['span'] ?? '0:00',
             'streamingUrl': song['songStreamUrl'] ?? '',
-            'languages': song['languages'] ?? '',
+            'languages': (song['languages'] ?? '') == 'Odia' ? 'Oriya' : (song['languages'] ?? ''),
             'genre': song['genre'] ?? '',
             'source': song['genre'] ?? '',
             'album': albumName,

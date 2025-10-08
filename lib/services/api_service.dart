@@ -311,13 +311,27 @@ class ApiService {
   }
 
   static Future<http.Response> createJob(Map<String, dynamic> data) async {
-    // These endpoints don't accept Bearer token authentication
-    return post(ApiEndpoints.createJobUrl, body: data);
+    // Try with authentication headers first
+    try {
+      final token = await getAuthToken();
+      return post(ApiEndpoints.createJobUrl, body: data, headers: getAuthHeaders(token));
+    } catch (e) {
+      // Fallback to no authentication if token fails
+      print('🔄 Trying createJob without auth token due to: $e');
+      return post(ApiEndpoints.createJobUrl, body: data);
+    }
   }
 
   static Future<http.Response> updateSongTable(Map<String, dynamic> data) async {
-    // These endpoints don't accept Bearer token authentication
-    return post(ApiEndpoints.songTableUrl, body: data);
+    // Try with authentication headers first
+    try {
+      final token = await getAuthToken();
+      return post(ApiEndpoints.songTableUrl, body: data, headers: getAuthHeaders(token));
+    } catch (e) {
+      // Fallback to no authentication if token fails
+      print('🔄 Trying updateSongTable without auth token due to: $e');
+      return post(ApiEndpoints.songTableUrl, body: data);
+    }
   }
 
   // Admin APIs

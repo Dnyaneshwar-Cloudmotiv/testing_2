@@ -170,7 +170,7 @@ class ShareSongHandler {
 
       // Get song info
       final String genre = songDetails['genre'] ?? 'Unknown Genre';
-      final String language = songDetails['languages'] ?? 'Unknown Language';
+      final String language = (songDetails['languages'] ?? 'Unknown Language') == 'Odia' ? 'Oriya' : (songDetails['languages'] ?? 'Unknown Language');
 
       // Pause current audio if playing
       if (currentSongId != null) {
@@ -224,7 +224,7 @@ class ShareSongHandler {
             'span': data['span']?['S'] ?? '00:00',
             'coverPage': data['coverPageUrl']?['S'] ?? 'assets/placeholder.png',
             'genre': data['genre']?['S'] ?? 'Unknown Genre',
-            'languages': data['languages']?['S'] ?? 'Unknown Language',
+            'languages': (data['languages']?['S'] ?? 'Unknown Language') == 'Odia' ? 'Oriya' : (data['languages']?['S'] ?? 'Unknown Language'),
           };
         }
       }

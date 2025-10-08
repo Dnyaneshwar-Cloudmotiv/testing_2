@@ -22,11 +22,11 @@ import '../audio_service1.dart';
 import '../profile_manager.dart';
 import 'package:voiceapp/connectivity_service.dart';
 import 'package:voiceapp/loading_screen.dart';
+import '../newlistofsongs.dart';
 
 class UploadSongFourthPage extends StatefulWidget {
   final Map<String, dynamic> onDataSubmitted;
   final bool isFromNewHomePage;
-
   UploadSongFourthPage({required this.onDataSubmitted,this.isFromNewHomePage = false});
 
   @override
@@ -248,6 +248,17 @@ Future<void> _pickLyricsFile() async {
           _audioFile != null &&
           _lyricsFile != null;
 
+  // Clear language cache after successful upload so new songs appear instantly
+  void _clearLanguageCacheAfterUpload() {
+    try {
+      // Clear cache for the specific language that was uploaded
+      ListPage.clearLanguageCache(language);
+      print('🔄 Cleared cache for uploaded language: $language');
+    } catch (e) {
+      print('Warning: Failed to clear language cache: $e');
+    }
+  }
+
   void _onCheckboxChanged(bool? value, String checkboxType) {
     setState(() {
       if (checkboxType == 'terms') {
@@ -334,32 +345,53 @@ Future<void> _pickLyricsFile() async {
       }
     } catch (e) {
       print('Error uploading song: $e');
+      rethrow; // Re-throw the exception so the calling method knows it failed
     }
   }
 
   Future<void> _createJob() async {
-    final response = await ApiService.createJob({
+    print('🔄 Attempting to create job for: $songName.mp3, user: $email');
+    
+    final jobData = {
       'key': '$songName.mp3',
       'user_id': email,
-    });
+    };
+    
+    print('📝 Job data: $jobData');
+    
+    final response = await ApiService.createJob(jobData);
+    
+    print('📊 Job creation response - Status: ${response.statusCode}');
+    print('📊 Job creation response - Body: ${response.body}');
 
     if (ApiService.isSuccessResponse(response)) {
-      print("Job created successfully");
+      print("✅ Job created successfully");
     } else {
+      print("❌ Job creation failed - Status: ${response.statusCode}, Body: ${response.body}");
       throw Exception('Error creating job: ${ApiService.getErrorMessage(response)}');
     }
   }
 
   Future<void> _updateSongTable() async {
-    final response = await ApiService.updateSongTable({
+    print('🔄 Attempting to update song table for: $songName.mp3, user: $email');
+    
+    final tableData = {
       'user_id': email,
       'songName': '$songName.mp3',
       'lyricsFileName': _lyricsFile!.path.split('/').last,
-    });
+    };
+    
+    print('📝 Table data: $tableData');
+    
+    final response = await ApiService.updateSongTable(tableData);
+    
+    print('📊 Song table update response - Status: ${response.statusCode}');
+    print('📊 Song table update response - Body: ${response.body}');
 
     if (ApiService.isSuccessResponse(response)) {
-      print("Song entry updated successfully in the table");
+      print("✅ Song entry updated successfully in the table");
     } else {
+      print("❌ Song table update failed - Status: ${response.statusCode}, Body: ${response.body}");
       throw Exception('Error updating song table: ${ApiService.getErrorMessage(response)}');
     }
   }
@@ -542,8 +574,15 @@ Future<void> _pickLyricsFile() async {
       //await _createJob();
       //await _updateSongTable();
 
-      // Step 4: Notify all admin users about the new song upload
-      await _notifyAdmins(songName, name);
+      // Step 4: Notify all admin users about the new song upload (don't fail upload if notification fails)
+      try {
+        await _notifyAdmins(songName, name);
+      } catch (e) {
+        print('Warning: Admin notification failed, but upload was successful: $e');
+      }
+
+      // Clear language cache so new song appears instantly
+      _clearLanguageCacheAfterUpload();
 
       // Only show success UI if widget is still mounted
       if (mounted) {
