@@ -451,8 +451,11 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
 
-        // Extract unique languages
-        Set<String> uniqueLanguages = responseData.map<String>((lang) => lang.toString()).toSet();
+        // Extract unique languages and map "Odia" to "Oriya"
+        Set<String> uniqueLanguages = responseData.map<String>((lang) {
+          String languageName = lang.toString();
+          return languageName == 'Odia' ? 'Oriya' : languageName;
+        }).toSet();
 
         setState(() {
           _languages = uniqueLanguages.toList();
@@ -1274,21 +1277,23 @@ class _MusicArtistPageState extends State<MusicArtistPage> {
   }
 
   // Helper widget for language card
-  // Helper widget for language card
   Widget languageCard(String language) {
     final String imagePath = languageCoverPages[language] ??
         'assets/default_lang.jpg';
 
     return GestureDetector(
       onTap: () async {
+        // Map "Oriya" back to "Odia" for API compatibility
+        String apiLanguage = language == 'Oriya' ? 'Odia' : language;
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
                 ListPage(
                   navigationIndex: 1,
-                  genreTitle: language,
-                  // Pass the language as genreTitle
+                  genreTitle: apiLanguage,
+                  // Pass the API-compatible language as genreTitle
                   bannerImage: imagePath,
                   email: widget.userId,
                   songs: null,

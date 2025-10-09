@@ -13,6 +13,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../profile_manager.dart';
 import '../audio_service1.dart';
 import '../main.dart';
+import 'auth_service.dart';
 
 // Port name for communication between isolates
 const String _backgroundPortName = 'voiz_background_port';
@@ -170,12 +171,13 @@ Future<void> _performLogoutInBackground() async {
       debugPrint('Error clearing notifications: $e');
     }
 
-    // Sign out from Amplify
+    // Sign out using AuthService for proper session clearing
     try {
-      await Amplify.Auth.signOut();
-      debugPrint('Signed out from Amplify');
+      final authService = AuthService();
+      await authService.signOut();
+      debugPrint('Signed out using AuthService (clears both secure storage and Amplify)');
     } catch (e) {
-      debugPrint('Error signing out from Amplify: $e');
+      debugPrint('Error signing out using AuthService: $e');
     }
 
     // Clear all local storage

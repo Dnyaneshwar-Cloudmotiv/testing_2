@@ -25,6 +25,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Make sure to import your main.dart file
 import 'package:voiceapp/connectivity_service.dart';
 import 'package:voiceapp/loading_screen.dart';
+import 'package:voiceapp/services/auth_service.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
   final String userId;
@@ -58,6 +59,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> with SingleTi
   bool _isNoInternet = false;
   late ConnectivityService _connectivityService;
   bool _mounted = true;
+  final AuthService _authService = AuthService();
 
 
 
@@ -434,10 +436,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> with SingleTi
         // Add a delay to ensure resources are released
         await Future.delayed(Duration(milliseconds: 500));
 
-        // 🔧 FIX: Only sign out from Amplify if not preserving session
+        // 🔧 FIX: Use AuthService.signOut() for proper session clearing
         if (!preserveSession) {
-          await Amplify.Auth.signOut();
-          print('Signed out from Amplify');
+          await _authService.signOut();
+          print('Signed out using AuthService (clears both secure storage and Amplify)');
         } else {
           print('🚫 Preserving Amplify Auth session');
         }
