@@ -1031,7 +1031,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
     String? stageName = ProfileManager().username.value;
     print('DEBUG: Initial stageName from ProfileManager: $stageName');
     print('DEBUG: ProfileManager userId: ${ProfileManager().getUserId()}');
-    
+
     // If no stage name in memory, try to fetch it fresh for existing users
     if (stageName == null || stageName.trim().isEmpty) {
       print('DEBUG: No stage name found, fetching fresh data...');
@@ -1043,9 +1043,9 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
         print('Error fetching updated username: $e');
       }
     }
-    
+
     final artistName = (stageName?.trim().isNotEmpty == true) ? stageName! : (widget.fullName?.trim() ?? 'Unknown Artist');
-    
+
     print('DEBUG: Final artistName being used: $artistName');
     print('DEBUG: stageName: $stageName, fullName: ${widget.fullName}');
 
@@ -1202,7 +1202,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
 
             await Future.delayed(Duration(milliseconds: 100));
 
-            // ✅ Add this line:
+            // ✅ Navigate to NewHomePage
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -1347,6 +1347,8 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
       int processedCount,
       int failedCount,
       String? albumName) async {
+
+    // --- Start of Confirmation Popup Color/Style Update ---
     String title = albumName != null
         ? 'Album Created Successfully!'
         : 'Songs Uploaded Successfully!';
@@ -1365,77 +1367,123 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          backgroundColor: Color(0xFF151415),  // Changed from Colors.grey[850]
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          contentPadding: EdgeInsets.zero,
-          content: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.blue,  // Changed from Colors.green
-                      size: 60,
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+        return WillPopScope(
+          onWillPop: () async => false, // Prevents back button dismissal
+          child: Dialog(
+            backgroundColor: Colors.transparent, // Use transparent background for stack styling
+            child: Stack(
+              alignment: Alignment.topCenter,
+              clipBehavior: Clip.none,
+              children: [
+                // Main Dialog Container
+                Container(
+                  width: 263, // Fixed width for smaller dialog as per reference
+                  // Use a minimum height, or let Column size it
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF151415), // Deep dark background
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      // White glowing shadows from reference
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.2),
+                        blurRadius: 15,
+                        spreadRadius: -2,
+                        offset: Offset(8, 0),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 15),
-                    Text(
-                      message,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.2),
+                        blurRadius: 15,
+                        spreadRadius: -2,
+                        offset: Offset(0, 8),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 30),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop(true);
-                      },
-                      icon: Icon(Icons.check, color: Colors.white),
-                      label: Text(
-                        "OK",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.3),
+                        blurRadius: 20,
+                        spreadRadius: -5,
+                        offset: Offset(8, 8),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF2644D9),  // Changed from Colors.deepPurple
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(height: 20), // Space for close button
+                      Center(
+                        child: Text(
+                          "Confirmation!", // Use fixed title as per reference screenshot
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      Text(
+                        // Use the combined message
+                        message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14, // Slightly smaller font for body
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      GestureDetector(
+                        onTap: () => Navigator.of(dialogContext).pop(true),
+                        child: CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Colors.blue, // Blue accent
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 35,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10), // Final spacing
+                    ],
+                  ),
+                ),
+                // Positioned Close Button
+                Positioned(
+                  top: 10,
+                  right: 20,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(dialogContext).pop(true),
+                    child: CircleAvatar(
+                      radius: 15,
+                      backgroundColor: Colors.transparent, // Transparent for custom border
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 3.0,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Color(0xFF151415), // Dark background for the icon
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: IconButton(
-                  icon: Icon(Icons.close, color: Colors.white70, size: 28),
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop(true);
-                  },
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     ) ?? false;
+    // --- End of Confirmation Popup Color/Style Update ---
   }
 
   Future<void> _launchURL(String url) async {
@@ -1462,12 +1510,9 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
         return PopScope(
           canPop: !_isUploadLoading,
           onPopInvoked: (didPop) async {
-            if (!didPop) { // Only handle if pop was prevented by canPop
+            if (!didPop) {
               if (!_isUploadLoading) {
-                // This means the user tried to pop, but canPop was false
-                // No action needed here, as the dialog remains open.
-                // If it popped due to external tap, then it means canPop was true,
-                // and no action is needed here.
+                // No action needed here
               }
             }
           },
@@ -1475,34 +1520,58 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
             builder: (context, setDialogState) {
               bool canUpload = _isTermsAccepted && _isContentPolicyAccepted && _isCopyrightAccepted;
 
-              print('Console: Dialog gradient applied - Top: #2644D9, Bottom: #9C27B0'); // Debug log
               return AlertDialog(
                 backgroundColor: Colors.transparent,
                 contentPadding: EdgeInsets.zero,
                 content: Container(
                   width: MediaQuery.of(context).size.width * 0.9,
-                  padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF2644D9),  // Blue at top
-                        Color(0xFF151415),  // Dark color at bottom
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(15),
+                    color: Color(0xFF151415), // Solid Dark color
+                    borderRadius: BorderRadius.circular(28),
                     boxShadow: [
+                      // White glowing shadows/reflections
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.white.withOpacity(0.2),
+                        blurRadius: 15,
+                        spreadRadius: -2,
+                        offset: Offset(8, 0),
+                      ),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.2),
+                        blurRadius: 15,
+                        spreadRadius: -2,
+                        offset: Offset(0, 8),
+                      ),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.3),
                         blurRadius: 20,
-                        offset: Offset(0, 10),
+                        spreadRadius: -5,
+                        offset: Offset(8, 8),
                       ),
                     ],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Positioned Close Button
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (!_isUploadLoading) {
+                              Navigator.of(dialogContext).pop();
+                              _showSnackBar('Upload cancelled. Your added songs are retained.', backgroundColor: Colors.blueGrey);
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 5.0, top: 5.0),
+                            child: CircleAvatar(
+                              radius: 15,
+                              backgroundColor: Colors.transparent,
+                            ),
+                          ),
+                        ),
+                      ),
                       AnimatedContainer(
                         duration: Duration(milliseconds: 300),
                         child: Text(
@@ -1515,118 +1584,120 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
                         ),
                       ),
                       SizedBox(height: 20),
+
+                      // --- ALIGNMENT FIX APPLIED HERE ---
+                      // Removed unnecessary padding around this specific text block
+                      // and ensured the text is formatted correctly.
                       Text(
-                        'Please confirm the following before uploading ${_storedSongs.length} songs:',
+                        'Please confirm the following before\nuploading ${_storedSongs.length}  songs:',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.white.withOpacity(0.8),
                           fontSize: 14,
                         ),
                         textAlign: TextAlign.center,
                       ),
+                      // --- END ALIGNMENT FIX ---
+
                       SizedBox(height: 20),
-                      _buildAnimatedCheckbox(
-                        "I've read and agreed to the terms and conditions",
-                        _isTermsAccepted,
-                            (value) {
-                          if (!_isUploadLoading) {
-                            setDialogState(() => _onCheckboxChanged(value, 'terms'));
-                            setState(() {});
-                          }
-                        },
-                        url: 'https://voiz.co.in/music-license-agreement/',
-                        linkText: 'terms and conditions',
-                      ),
-                      _buildAnimatedCheckbox(
-                        "Content uploaded meets the platform Code of Conduct",
-                        _isContentPolicyAccepted,
-                            (value) {
-                          if (!_isUploadLoading) {
-                            setDialogState(() => _onCheckboxChanged(value, 'policy'));
-                            setState(() {});
-                          }
-                        },
-                        url: 'https://voiz.co.in/code-of-conduct/',
-                        linkText: 'Code of Conduct',
-                      ),
-                      _buildAnimatedCheckbox(
-                        "Content doesn't infringe others copyrights",
-                        _isCopyrightAccepted,
-                            (value) {
-                          if (!_isUploadLoading) {
-                            setDialogState(() => _onCheckboxChanged(value, 'copyright'));
-                            setState(() {});
-                          }
-                        },
-                      ),
-                      SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Expanded(
-                          //   child: TextButton(
-                          //     onPressed: _isUploadLoading
-                          //         ? null
-                          //         : () {
-                          //       Navigator.of(dialogContext).pop();
-                          //       // NEW: Show SnackBar to confirm cancellation without data loss
-                          //       _showSnackBar('Upload cancelled. Your added songs are retained.', backgroundColor: Colors.blueGrey);
-                          //     },
-                          //     child: Text(
-                          //       'Cancel',
-                          //       style: TextStyle(
-                          //         color: _isUploadLoading ? Colors.grey : Colors.white,
-                          //         fontSize: 16,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            flex: 2,
-                            child: ElevatedButton(
-                              onPressed: (canUpload && !_isUploadLoading)
-                                  ? () async {
-                                if (_isUploadLoading) return;
-
-                                setDialogState(() => _isUploadLoading = true);
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                                await _uploadFile(); // Start the actual upload
-
-                                if (mounted) {
-                                  setState(() => _isUploadLoading = false);
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Column(
+                          children: [
+                            _buildAnimatedCheckbox(
+                              // Text adjusted to place link text at the end
+                              "I've read and agree to the terms and conditions",
+                              _isTermsAccepted,
+                                  (value) {
+                                if (!_isUploadLoading) {
+                                  setDialogState(() => _onCheckboxChanged(value, 'terms'));
+                                  setState(() {});
                                 }
-                              }
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: (canUpload && !_isUploadLoading)
-                                    ? Color(0xFF2644D9)
-                                    : Colors.grey,
-                                padding: EdgeInsets.symmetric(vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                              },
+                              url: 'https://voiz.co.in/music-license-agreement/',
+                              linkText: 'terms and conditions',
+                            ),
+                            _buildAnimatedCheckbox(
+                              // Explicit line break applied
+                              "Content uploaded meets the \n platform Code of Conduct",
+                              _isContentPolicyAccepted,
+                                  (value) {
+                                if (!_isUploadLoading) {
+                                  setDialogState(() => _onCheckboxChanged(value, 'policy'));
+                                  setState(() {});
+                                }
+                              },
+                              url: 'https://voiz.co.in/code-of-conduct/',
+                              linkText: 'Code of Conduct',
+                            ),
+                            _buildAnimatedCheckbox(
+                              // Explicit line break applied
+                              "Content doesn't infringe \n others copyrights",
+                              _isCopyrightAccepted,
+                                  (value) {
+                                if (!_isUploadLoading) {
+                                  setDialogState(() => _onCheckboxChanged(value, 'copyright'));
+                                  setState(() {});
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton(
+                                onPressed: (canUpload && !_isUploadLoading)
+                                    ? () async {
+                                  if (_isUploadLoading) return;
+
+                                  setDialogState(() => _isUploadLoading = true);
+                                  Navigator.of(dialogContext).pop(); // Close the dialog
+                                  await _uploadFile(); // Start the actual upload
+
+                                  if (mounted) {
+                                    setState(() => _isUploadLoading = false);
+                                  }
+                                }
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: (canUpload && !_isUploadLoading)
+                                      ? Color(0xFF2644D9)
+                                      : Colors.grey,
+                                  padding: EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
                                 ),
-                              ),
-                              child: _isUploadLoading
-                                  ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                                  : Text(
-                                'Confirm',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                child: _isUploadLoading
+                                    ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                    : Text(
+                                  'Confirm',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -1637,6 +1708,7 @@ class _UploadMultipleSongsPageState extends State<UploadMultipleSongsPage> {
       },
     );
   }
+
 
   Widget _buildAnimatedCheckbox(
       String text,
